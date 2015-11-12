@@ -1,3 +1,3 @@
-parse
-grammar.c
-scanner.c
+*parse
+*grammar.c
+*scanner.c
