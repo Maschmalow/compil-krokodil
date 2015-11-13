@@ -1,0 +1,12 @@
+//Ne dois PAS compiler, void invalide
+
+int main()
+{
+
+
+  void tab[50];
+
+  int (*f)(void);
+
+  return 0;
+}
