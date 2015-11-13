@@ -1,0 +1,20 @@
+
+
+int f(int a)
+{
+  return 1;
+}
+
+extern int (*g)(int);
+
+int main()
+{
+  
+  int C[10];
+  int B[];
+  int A[1000];
+  int (*w)(int);
+  map(w, 10);
+  B = map(g,map(f,A));
+
+}
