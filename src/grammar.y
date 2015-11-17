@@ -8,9 +8,9 @@
 
 %}
 
-%token <string> IDENTIFIER
-%token <f> CONSTANTF
-%token <n> CONSTANTI
+%token <s_id> IDENTIFIER
+%token <f_val> CONSTANTF
+%token <n_val> CONSTANTI
 %token MAP REDUCE EXTERN
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP
 %token SUB_ASSIGN MUL_ASSIGN ADD_ASSIGN
@@ -18,19 +18,21 @@
 %token INT FLOAT VOID
 %token IF ELSE WHILE RETURN FOR DO
 %type <type> declarator
+%type <d> primary_expression postfix_expression argument_expression_list unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
 %start program
+
 %union {
-  char *string;
-  int n;
-  float f;
-  type_t *type;
+  char* s_id;
+  int i_val;
+  float f_val;
+  data* e_data;
 }
 %%
 
 primary_expression
-: IDENTIFIER {printf("%s\n",$1);}
-| CONSTANTI {printf("%i\n",$1);}
-| CONSTANTF {printf("%f\n",$1);}
+: IDENTIFIER 
+| CONSTANTI 
+| CONSTANTF 
 | '(' expression ')'
 | MAP '(' postfix_expression ',' postfix_expression ')'
 | REDUCE '(' postfix_expression ',' postfix_expression ')'
@@ -114,7 +116,7 @@ type_name
 declarator
 : IDENTIFIER
 | '(' declarator ')'
-  | declarator '[' CONSTANTI ']' {$$=malloc(sizeof(type_t));$$->base_array = $1;    $$->nb = $3;    $$->base = VARRAY;  }
+| declarator '[' CONSTANTI ']'
 | declarator '[' ']'
 | declarator '(' parameter_list ')'
 | declarator '(' ')'

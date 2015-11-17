@@ -25,9 +25,9 @@ L[a-zA-Z_]
 "map"           { count(); return(MAP); }
 "reduce"        { count(); return(REDUCE); }
 "extern"        { count(); return(EXTERN); }
-[$]?{L}({L}|{D})*	{ count(); yylval.string=strdup(yytext); return(IDENTIFIER); }
-{D}+    	{ count(); yylval.n=atoi(yytext); return(CONSTANTI); }
-{D}+"."{D}*     { count(); yylval.f=atof(yytext); return(CONSTANTF); }
+[$]?{L}({L}|{D})*	{ count(); yylval.s_id=strdup(yytext); return(IDENTIFIER); }
+{D}+    	{ count(); yylval.i_val=atoi(yytext); return(CONSTANTI); }
+{D}+"."{D}*     { count(); yylval.f_val=atof(yytext); return(CONSTANTF); }
 "+="		{ count(); return(ADD_ASSIGN); }
 "-="		{ count(); return(SUB_ASSIGN); }
 "*="		{ count(); return(MUL_ASSIGN); }

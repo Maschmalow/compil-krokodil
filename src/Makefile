@@ -15,4 +15,4 @@ grammar.c:grammar.y
 	$(LEX) -o $@ $^
 
 clean:
-	rm -f grammar.c scanner.c
+	rm -f grammar.c scanner.c parse
