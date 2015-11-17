@@ -4,7 +4,7 @@
     extern int yylineno;
     int yylex ();
     int yyerror ();
-
+    int depth;
 
 %}
 
@@ -15,16 +15,17 @@
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP
 %token SUB_ASSIGN MUL_ASSIGN ADD_ASSIGN
 %token TYPE_NAME
-%token INT FLOAT VOID
+%token INT FLOAT VOID CHAR
 %token IF ELSE WHILE RETURN FOR DO
 %type <type> declarator
-%type <d> primary_expression postfix_expression argument_expression_list unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
+%type <e_data> primary_expression postfix_expression argument_expression_list unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
 %start program
 
 %union {
   char* s_id;
   int i_val;
   float f_val;
+  type_s* type;
   data* e_data;
 }
 %%
@@ -111,6 +112,7 @@ type_name
 : VOID
 | INT
 | FLOAT
+| CHAR
 ;
 
 declarator
@@ -229,3 +231,6 @@ int main (int argc, char *argv[]) {
     free (file_name);
     return 0;
 }
+
+
+

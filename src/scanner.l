@@ -17,6 +17,7 @@ L[a-zA-Z_]
 "if"		{ count(); return(IF); }
 "else"		{ count(); return(ELSE); }
 "int"		{ count(); return(INT); }
+"char"          { count(); return(CHAR); }
 "return"	{ count(); return(RETURN); }
 "void"		{ count(); return(VOID); }
 "while"		{ count(); return(WHILE); }

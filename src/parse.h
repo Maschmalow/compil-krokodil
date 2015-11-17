@@ -5,6 +5,9 @@
 struct data;
 typedef struct data data;
 
+struct var_s;
+typedef struct var_s var_s;
+
 union type_s;
 struct type_f;
 struct type_t;
@@ -16,7 +19,18 @@ struct data {
   int  ret_name;
   char* llvm_code;
   type_s* type;
-}
+};
+
+struct var_s {
+  char* s_id;
+  int tmp_id;
+
+  char* code;
+  type_s* type;
+  int depth;
+  
+  
+};
 
 typedef int type_b;
 #define VOID_T ((type_b) 0)
