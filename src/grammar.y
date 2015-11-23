@@ -1,11 +1,19 @@
 %{
     #include <stdio.h>
+    #include <search.h>
+
+    #define NB_VAR_MAX 10000
     #include "parse.h"
+  
+
     extern int yylineno;
     int yylex ();
     int yyerror ();
-    int depth;
 
+    extern int depth;
+    
+
+      
 %}
 
 %token <s_id> IDENTIFIER
@@ -14,10 +22,12 @@
 %token MAP REDUCE EXTERN
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP
 %token SUB_ASSIGN MUL_ASSIGN ADD_ASSIGN
-%token TYPE_NAME
 %token INT FLOAT VOID CHAR
 %token IF ELSE WHILE RETURN FOR DO
-%type <type> declarator
+%type <t_base_d> type_name
+%type <func_d> parameter_list
+%type <type_d> parameter_declaration
+%type <var_d> declarator
 %type <e_data> primary_expression postfix_expression argument_expression_list unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
 %start program
 
@@ -25,7 +35,10 @@
   char* s_id;
   int i_val;
   float f_val;
-  type_s* type;
+  type_s* type_d;
+  type_b t_base_d;
+  type_f* func_d;
+  var_s* var_d;
   data* e_data;
 }
 %%
@@ -99,38 +112,34 @@ assignment_operator
 ;
 
 declaration
-: type_name declarator_list ';'
-| EXTERN type_name declarator_list ';'
+: type_name declarator ';'{ ENTRY e = {$2->s_id, $2}; hsearch(e,ENTER)}
+| EXTERN type_name declarator ';'{ $3->flags |= VAR_EXTERN; ENTRY e = {$2->s_id, $2}; hsearch(e,ENTER)}
 ;
 
-declarator_list
-: declarator
-| declarator_list ',' declarator
-;
 
 type_name
-: VOID
-| INT
-| FLOAT
-| CHAR
+: VOID {$$ = VOID_T;}
+| INT {$$ = INT_T; }
+| FLOAT {$$ = FLOAT_T;}
+| CHAR {$$ = CHAR_T;}
 ;
 
 declarator
-: IDENTIFIER
-| '(' declarator ')'
-| declarator '[' CONSTANTI ']'
-| declarator '[' ']'
-| declarator '(' parameter_list ')'
-| declarator '(' ')'
+: IDENTIFIER { $$->s_id = $1; }
+| '(' declarator ')' {$$ = $2;}
+| declarator '[' CONSTANTI ']' {$$->type->tab->size = $3; }
+| declarator '[' ']' {$$->type->tab->size = 0; }
+| declarator '(' parameter_list ')' {$$->type->func = $3}
+| declarator '(' ')' {$$->type->func->nb_param =0; $$->type->func->params =NULL;}
 ;
 
 parameter_list
-: parameter_declaration
-| parameter_list ',' parameter_declaration
+: parameter_declaration {$$->nb_param = 1;  $$->params[0] = $1;}
+| parameter_list ',' parameter_declaration {$$->nb_param = $1->nb_param+1; $$->params = $1->params; $$->params[$1->nb_param] = $3;}
 ;
 
 parameter_declaration
-: type_name declarator
+: type_name declarator {$$ = $2->type;}
 ;
 
 statement
@@ -226,6 +235,10 @@ int main (int argc, char *argv[]) {
     else {
 	fprintf (stderr, "%s: error: no input file\n", *argv);
 	return 1;
+    }
+    if(!hcreate(NB_VAR_MAX)) {
+        perror("hcreate");
+       return 1;
     }
     yyparse ();
     free (file_name);

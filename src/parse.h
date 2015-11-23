@@ -17,20 +17,18 @@ typedef struct type_t type_t;
 
 struct data {
   int  ret_name;
-  char* llvm_code;
+  char* ll_c;
   type_s* type;
 };
 
 struct var_s {
   char* s_id;
-  int tmp_id;
 
-  char* code;
+  int flags;
   type_s* type;
   int depth;
-  
-  
 };
+#define VAR_EXTERN 1
 
 typedef int type_b;
 #define VOID_T ((type_b) 0)
