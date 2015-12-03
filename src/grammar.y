@@ -11,6 +11,8 @@
     int yylex ();
     int yyerror ();
 
+    type_t tmp = {NONE_T, NULL, NULL}
+    type_t*  EMPTY_TYPE= &tmp;
     extern int depth;
     
     char* ll_type(type_s* t) {
@@ -130,7 +132,12 @@ assignment_operator
 ;
 
 declaration
-: type_name declarator ';'{ ENTRY e = {$2->s_id, $2}; hsearch(e,ENTER)}
+: type_name declarator ';'{ $$->type = $2->type;
+                                        type_s* curT = $$->type;
+                                        if($$->type->tab != NULL){ $$->type->tab->elem while( curT->tab != NULL  ) curT = curT->tab->elem;  curT->base = $1;}
+                                        else if($$->type->func != NULL) {}
+                                        else { $$->type->base = $1; }
+                                        ENTRY e = {$2->s_id, $2}; hsearch(e,ENTER)}
 | EXTERN type_name declarator ';'{ $3->flags |= VAR_EXTERN; ENTRY e = {$2->s_id, $2}; hsearch(e,ENTER)}
 ;
 
@@ -143,12 +150,12 @@ type_name
 ;
 
 declarator
-: IDENTIFIER { $$->s_id = $1; }
+: IDENTIFIER { $$->s_id = $1; $$->type = EMPTY_TYPE}
 | '(' declarator ')' {$$ = $2;}
-| declarator '[' CONSTANTI ']' {$$->type->tab->size = $3; }
-| declarator '[' ']' {$$->type->tab->size = 0; }
+| declarator '[' CONSTANTI ']' {$$->type->tab->size = $3; $$->type->tab->elem = $1->type}
+| declarator '[' ']' {$$->type->tab->size = 0; $$->type->tab->elem = $1->type}
 | declarator '(' parameter_list ')' {$$->type->func = $3}
-| declarator '(' ')' {$$->type->func->nb_param =0; $$->type->func->params =NULL;}
+| declarator '(' ')' {$$->type->func->nb_param =0; $$->type->func->params =NULL; $$->s_id = $1->s_id}
 ;
 
 parameter_list

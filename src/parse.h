@@ -1,59 +1,11 @@
 #ifndef PARSE_H
 #define PARSE_H
 
+#define MAX_DEPTH 256
 
-struct data;
-typedef struct data data;
+#include "types.h"
+#include "data.h"
 
-struct var_s;
-typedef struct var_s var_s;
-
-struct type_s;
-struct type_f;
-struct type_t;
-typedef struct type_s type_s;
-typedef struct type_f type_f;
-typedef struct type_t type_t;
-
-struct data {
-  int  tmp_id;
-  char* ll_c;
-  type_s* type;
-};
-
-struct var_s {
-  char* s_id;
-
-  int flags;
-  type_s* type;
-  int depth;
-};
-#define VAR_EXTERN 1
-
-typedef int type_b;
-#define NONE_T ((type_b)[ 0)
-#define VOID_T ((type_b) 1)
-#define INT_T ((type_b) 2)
-#define FLOAT_T ((type_b) 3)
-#define CHAR_T ((type_b) 4)
-
-struct type_s {
-  type_b base;
-  type_t* tab;
-  type_f* func;
-};
-
-
-struct type_t {
-  type_s* base;
-  int size;
-};
-
-struct type_f {
-  type_s* ret;
-  type_s** params;
-  int nb_param;
-};
 
 
 #endif
