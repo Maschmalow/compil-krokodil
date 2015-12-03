@@ -1,5 +1,5 @@
-*parse
-*grammar.tab.h
-*grammar.c
-*scanner.c
+src/parse
+src/grammar.tab.h
+src/grammar.c
+src/scanner.c
 *~
