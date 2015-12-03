@@ -5,6 +5,7 @@
     #define NB_VAR_MAX 10000
     #include "parse.h"
   
+  const char* t_base_names[5] = {NULL, "void", "int32", "float", "int8" } 
 
     extern int yylineno;
     int yylex ();
@@ -12,6 +13,23 @@
 
     extern int depth;
     
+    char* ll_type(type_s* t) {
+      char* ret;
+      if(t->base != NONE_T)
+	ret = strdup(t_base_names[t->base]);
+
+      if(t->tab != NULL)
+	sprintf(ret, "[ %d x %s ]", t->tab.size, ll_type(t->tab.base));
+
+      if(t->func != NULL)
+	{
+	  sprintf(ret, "%s (",ll_type(t->func.ret));
+	  for(int i=0; i< t->func.nb_param; i++)
+	    strcat(ret, ll_type(func->params[i]
+
+	}
+	return ret;
+    }
 
       
 %}
@@ -84,8 +102,8 @@ multiplicative_expression
 ;
 
 additive_expression
-: multiplicative_expression
-| additive_expression '+' multiplicative_expression
+: multiplicative_expression { $$ = $1}
+| additive_expression '+' multiplicative_expression {sprintf($$->ll_c,"%s%s%%%d = add %s %%%d, %%%d\n", $1->ll_c, $3->ll_c, $$->type);
 | additive_expression '-' multiplicative_expression
 ;
 

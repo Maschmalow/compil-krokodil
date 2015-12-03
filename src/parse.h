@@ -8,15 +8,15 @@ typedef struct data data;
 struct var_s;
 typedef struct var_s var_s;
 
-union type_s;
+struct type_s;
 struct type_f;
 struct type_t;
-typedef union type_s type_s;
+typedef struct type_s type_s;
 typedef struct type_f type_f;
 typedef struct type_t type_t;
 
 struct data {
-  int  ret_name;
+  int  tmp_id;
   char* ll_c;
   type_s* type;
 };
@@ -31,12 +31,13 @@ struct var_s {
 #define VAR_EXTERN 1
 
 typedef int type_b;
-#define VOID_T ((type_b) 0)
-#define INT_T ((type_b) 1)
-#define FLOAT_T ((type_b) 2)
-#define CHAR_T ((type_b) 3)
+#define NONE_T ((type_b)[ 0)
+#define VOID_T ((type_b) 1)
+#define INT_T ((type_b) 2)
+#define FLOAT_T ((type_b) 3)
+#define CHAR_T ((type_b) 4)
 
-union type_s {
+struct type_s {
   type_b base;
   type_t* tab;
   type_f* func;
