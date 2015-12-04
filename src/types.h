@@ -11,7 +11,7 @@ typedef struct type_t type_t;
 
 
 typedef int type_b;
-#define NONE_T ((type_b)[ 0)
+#define NONE_T ((type_b) 0)
 #define VOID_T ((type_b) 1)
 #define INT_T ((type_b) 2)
 #define FLOAT_T ((type_b) 3)

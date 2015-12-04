@@ -5,33 +5,18 @@
     #define NB_VAR_MAX 10000
     #include "parse.h"
   
-  const char* t_base_names[5] = {NULL, "void", "int32", "float", "int8" } 
+  const char* t_base_names[5] = {NULL, "void", "int32", "float", "int8" };
 
     extern int yylineno;
     int yylex ();
     int yyerror ();
 
-    type_t tmp = {NONE_T, NULL, NULL}
-    type_t*  EMPTY_TYPE= &tmp;
+    type_s tmp = {NONE_T, NULL, NULL};
+    type_s*  EMPTY_TYPE= &tmp;
     extern int depth;
+    void binary_op_semantics(data* $$, data* $1, char $2, data* $3);
     
-    char* ll_type(type_s* t) {
-      char* ret;
-      if(t->base != NONE_T)
-	ret = strdup(t_base_names[t->base]);
-
-      if(t->tab != NULL)
-	sprintf(ret, "[ %d x %s ]", t->tab.size, ll_type(t->tab.base));
-
-      if(t->func != NULL)
-	{
-	  sprintf(ret, "%s (",ll_type(t->func.ret));
-	  for(int i=0; i< t->func.nb_param; i++)
-	    strcat(ret, ll_type(func->params[i]
-
-	}
-	return ret;
-    }
+    char* ll_type(type_s* t);
 
       
 %}
@@ -47,13 +32,13 @@
 %type <t_base_d> type_name
 %type <func_d> parameter_list
 %type <type_d> parameter_declaration
-%type <var_d> declarator
+%type <var_d> declarator declaration
 %type <e_data> primary_expression postfix_expression argument_expression_list unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
 %start program
 
 %union {
   char* s_id;
-  int i_val;
+  int n_val;
   float f_val;
   type_s* type_d;
   type_b t_base_d;
@@ -97,16 +82,18 @@ unary_operator
 : '-'
 ;
 
+
+
 multiplicative_expression
-: unary_expression
-| multiplicative_expression '*' unary_expression
-| multiplicative_expression '/' unary_expression
+: unary_expression { $$ = $1; }
+| multiplicative_expression '*' unary_expression { binary_op_semantics($$, $1, '*', $3); }
+| multiplicative_expression '/' unary_expression { binary_op_semantics($$, $1, '/', $3); }
 ;
 
 additive_expression
-: multiplicative_expression { $$ = $1}
-| additive_expression '+' multiplicative_expression {sprintf($$->ll_c,"%s%s%%%d = add %s %%%d, %%%d\n", $1->ll_c, $3->ll_c, $$->type);
-| additive_expression '-' multiplicative_expression
+: multiplicative_expression { $$ = $1; }
+| additive_expression '+' multiplicative_expression { binary_op_semantics($$, $1, '+', $3); }
+| additive_expression '-' multiplicative_expression { binary_op_semantics($$, $1, '-', $3); }
 ;
 
 comparison_expression
@@ -134,28 +121,40 @@ assignment_operator
 declaration
 : type_name declarator ';'{ $$->type = $2->type;
                                         type_s* curT = $$->type;
-                                        if($$->type->tab != NULL){ $$->type->tab->elem while( curT->tab != NULL  ) curT = curT->tab->elem;  curT->base = $1;}
+                                        if($$->type->tab != NULL){ 
+					    while( curT->tab != NULL  ) curT = curT->tab->elem; 
+					  curT->base = $1;
+					}
                                         else if($$->type->func != NULL) {}
                                         else { $$->type->base = $1; }
-                                        ENTRY e = {$2->s_id, $2}; hsearch(e,ENTER)}
-| EXTERN type_name declarator ';'{ $3->flags |= VAR_EXTERN; ENTRY e = {$2->s_id, $2}; hsearch(e,ENTER)}
+                                        ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
+| EXTERN type_name declarator ';'{ $$->type = $3->type;
+                                        $$->flags |= VAR_EXTERN; 
+                                        type_s* curT = $$->type;
+                                        if($$->type->tab != NULL){ 
+					    while( curT->tab != NULL  ) curT = curT->tab->elem; 
+					  curT->base = $2;
+					}
+                                        else if($$->type->func != NULL) {}
+                                        else { $$->type->base = $2; }
+                                        ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
 ;
 
 
 type_name
-: VOID {$$ = VOID_T;}
+: VOID {$$ = VOID_T; }
 | INT {$$ = INT_T; }
-| FLOAT {$$ = FLOAT_T;}
-| CHAR {$$ = CHAR_T;}
+| FLOAT {$$ = FLOAT_T; }
+| CHAR {$$ = CHAR_T; }
 ;
 
 declarator
-: IDENTIFIER { $$->s_id = $1; $$->type = EMPTY_TYPE}
+: IDENTIFIER { $$->s_id = $1; $$->type = EMPTY_TYPE; }
 | '(' declarator ')' {$$ = $2;}
-| declarator '[' CONSTANTI ']' {$$->type->tab->size = $3; $$->type->tab->elem = $1->type}
-| declarator '[' ']' {$$->type->tab->size = 0; $$->type->tab->elem = $1->type}
-| declarator '(' parameter_list ')' {$$->type->func = $3}
-| declarator '(' ')' {$$->type->func->nb_param =0; $$->type->func->params =NULL; $$->s_id = $1->s_id}
+| declarator '[' CONSTANTI ']' {$$->type->tab->size = $3; $$->type->tab->elem = $1->type; }
+| declarator '[' ']' {$$->type->tab->size = 0; $$->type->tab->elem = $1->type; }
+| declarator '(' parameter_list ')' {$$->type->func = $3; }
+| declarator '(' ')' {$$->type->func->nb_param =0; $$->type->func->params =NULL; $$->s_id = $1->s_id; }
 ;
 
 parameter_list
@@ -242,6 +241,33 @@ int yyerror (char *s) {
     fprintf (stderr, "%s:%d:%d: %s\n", file_name, yylineno, column, s);
     return 0;
 }
+
+ void op(char* buf, char s){
+   if(s == '/') strcpy(buf, "div");
+   if(s == '*') strcpy(buf, "mul");
+   if(s == '-') strcpy(buf, "sub");
+   if(s == '+') strcpy(buf, "add");
+ }
+
+ void binary_op_semantics(data* $$, data* $1, char $2, data* $3)
+ {
+
+   $$->type->base = CHAR_T;
+   if($1->type->base == INT_T || $3->type->base == INT_T || $2 == '*') $$->type->base = INT_T;
+   if($1->type->base == FLOAT_T || $3->type->base == FLOAT_T || $2 == '/') $$->type->base = FLOAT_T;
+
+   char op_type[5] = {0};
+   op_type--;
+   op(op_type, $2);
+   if($$->type->base == FlOAT_T) { 
+     op_type--;
+     op_type[0] = 'f'; 
+   }
+
+   sprintf($$->ll_c,"%s%s%%%d = %s %s %%%d, %%%d\n", $1->ll_c, $3->ll_c, $$->reg, op_type, ll_type($$->type), $1->reg, $3->reg);
+
+ }
+
 
 
 int main (int argc, char *argv[]) {

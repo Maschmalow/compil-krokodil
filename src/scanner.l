@@ -29,7 +29,7 @@ L[a-zA-Z_]
 "reduce"        { count(); return(REDUCE); }
 "extern"        { count(); return(EXTERN); }
 [$]?{L}({L}|{D})*	{ count(); yylval.s_id=strdup(yytext); return(IDENTIFIER); }
-{D}+    	{ count(); yylval.i_val=atoi(yytext); return(CONSTANTI); }
+{D}+    	{ count(); yylval.n_val=atoi(yytext); return(CONSTANTI); }
 {D}+"."{D}*     { count(); yylval.f_val=atof(yytext); return(CONSTANTF); }
 "+="		{ count(); return(ADD_ASSIGN); }
 "-="		{ count(); return(SUB_ASSIGN); }
