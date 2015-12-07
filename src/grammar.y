@@ -1,22 +1,24 @@
 %{
     #include <stdio.h>
+    #include <stdlib.h>
     #include <search.h>
+    #include <string.h>
 
     #define NB_VAR_MAX 10000
     #include "parse.h"
   
-  const char* t_base_names[5] = {NULL, "void", "int32", "float", "int8" };
 
     extern int yylineno;
     int yylex ();
     int yyerror ();
-
-    type_s tmp = {NONE_T, NULL, NULL};
-    type_s*  EMPTY_TYPE= &tmp;
-    extern int depth;
-    void binary_op_semantics(data* $$, data* $1, char $2, data* $3);
     
-    char* ll_type(type_s* t);
+    extern int depth;
+    
+    int new_reg();
+    const char* op(char s);
+    void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3);
+    
+
 
       
 %}
@@ -29,11 +31,11 @@
 %token SUB_ASSIGN MUL_ASSIGN ADD_ASSIGN
 %token INT FLOAT VOID CHAR
 %token IF ELSE WHILE RETURN FOR DO
-%type <t_base_d> type_name
+%type <t_prim_d> type_name
 %type <func_d> parameter_list
 %type <type_d> parameter_declaration
 %type <var_d> declarator declaration
-%type <e_data> primary_expression postfix_expression argument_expression_list unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
+%type <expr_d> primary_expression postfix_expression argument_expression_list unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
 %start program
 
 %union {
@@ -41,10 +43,10 @@
   int n_val;
   float f_val;
   type_s* type_d;
-  type_b t_base_d;
+  type_p t_prim_d;
   type_f* func_d;
   var_s* var_d;
-  data* e_data;
+  expr_s* expr_d;
 }
 %%
 
@@ -85,15 +87,15 @@ unary_operator
 
 
 multiplicative_expression
-: unary_expression { $$ = $1; }
-| multiplicative_expression '*' unary_expression { binary_op_semantics($$, $1, '*', $3); }
-| multiplicative_expression '/' unary_expression { binary_op_semantics($$, $1, '/', $3); }
+: unary_expression { $$ = $1; $1 = NULL; }
+| multiplicative_expression '*' unary_expression { binary_op_semantics($$, $1, op('*'), $3); }
+| multiplicative_expression '/' unary_expression { binary_op_semantics($$, $1, op('/'), $3); }
 ;
 
 additive_expression
-: multiplicative_expression { $$ = $1; }
-| additive_expression '+' multiplicative_expression { binary_op_semantics($$, $1, '+', $3); }
-| additive_expression '-' multiplicative_expression { binary_op_semantics($$, $1, '-', $3); }
+: multiplicative_expression { $$ = $1; $1 = NULL; }
+| additive_expression '+' multiplicative_expression { binary_op_semantics($$, $1, op('+'), $3); }
+| additive_expression '-' multiplicative_expression { binary_op_semantics($$, $1, op('-'), $3); }
 ;
 
 comparison_expression
@@ -123,20 +125,20 @@ declaration
                                         type_s* curT = $$->type;
                                         if($$->type->tab != NULL){ 
 					    while( curT->tab != NULL  ) curT = curT->tab->elem; 
-					  curT->base = $1;
+					  curT->prim = $1;
 					}
                                         else if($$->type->func != NULL) {}
-                                        else { $$->type->base = $1; }
+                                        else { $$->type->prim = $1; }
                                         ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
 | EXTERN type_name declarator ';'{ $$->type = $3->type;
                                         $$->flags |= VAR_EXTERN; 
                                         type_s* curT = $$->type;
                                         if($$->type->tab != NULL){ 
 					    while( curT->tab != NULL  ) curT = curT->tab->elem; 
-					  curT->base = $2;
+					  curT->prim = $2;
 					}
                                         else if($$->type->func != NULL) {}
-                                        else { $$->type->base = $2; }
+                                        else { $$->type->prim = $2; }
                                         ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
 ;
 
@@ -149,12 +151,12 @@ type_name
 ;
 
 declarator
-: IDENTIFIER { $$->s_id = $1; $$->type = EMPTY_TYPE; }
-| '(' declarator ')' {$$ = $2;}
+: IDENTIFIER {  $$ = new_empty_var_s(); $$->s_id = $1; }
+| '(' declarator ')' { $$ = $2; $2 = NULL; }
 | declarator '[' CONSTANTI ']' {$$->type->tab->size = $3; $$->type->tab->elem = $1->type; }
 | declarator '[' ']' {$$->type->tab->size = 0; $$->type->tab->elem = $1->type; }
 | declarator '(' parameter_list ')' {$$->type->func = $3; }
-| declarator '(' ')' {$$->type->func->nb_param =0; $$->type->func->params =NULL; $$->s_id = $1->s_id; }
+| declarator '(' ')' {$$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = $1->s_id; }
 ;
 
 parameter_list
@@ -242,33 +244,81 @@ int yyerror (char *s) {
     return 0;
 }
 
- void op(char* buf, char s){
-   if(s == '/') strcpy(buf, "div");
-   if(s == '*') strcpy(buf, "mul");
-   if(s == '-') strcpy(buf, "sub");
-   if(s == '+') strcpy(buf, "add");
- }
+const char* op(char s){
+  if(s == '/') return "div";
+  if(s == '*') return "mul";
+  if(s == '-') return "sub";
+  return  "add";
+}
 
- void binary_op_semantics(data* $$, data* $1, char $2, data* $3)
+void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3)
  {
+	$$ = new_empty_expr_s();
+	$$->reg = new_reg(/* id bloc, depth? */);
+	
+	$$->type->prim = CHAR_T;
+	if($1->type->prim == INT_T || $3->type->prim == INT_T || *$2 == 'm') $$->type->prim = INT_T;
+	if($1->type->prim == FLOAT_T || $3->type->prim == FLOAT_T || *$2 == 'd') $$->type->prim = FLOAT_T;
 
-   $$->type->base = CHAR_T;
-   if($1->type->base == INT_T || $3->type->base == INT_T || $2 == '*') $$->type->base = INT_T;
-   if($1->type->base == FLOAT_T || $3->type->base == FLOAT_T || $2 == '/') $$->type->base = FLOAT_T;
+	char op_type[2] = {0};
+	if($$->type->prim == FLOAT_T) { 
+		op_type[0] = 'f'; 
+	}
+	
+	char* tmp = ll_type($$->type);
+	asprintf(&($$->ll_c),"%s%s%%%d = %s%s %s %%%d, %%%d\n", $1->ll_c, $3->ll_c, $$->reg, op_type, $2, tmp, $1->reg, $3->reg);
+	free(tmp);
+	free_expr_s($1);
+	free_expr_s($3);
+	
+}
+ 
+char* ll_type(type_s* t) {
+	char* ret;
+	if(IS_PRIMARY(t))
+	{
+		if(t->prim == VOID_T)  return strdup("void");
+		if(t->prim == CHAR_T)  return strdup("int8");
+		if(t->prim == INT_T)   return strdup("int32");
+		if(t->prim == FLOAT_T) return strdup("flaot");
+	}
 
-   char op_type[5] = {0};
-   op_type--;
-   op(op_type, $2);
-   if($$->type->base == FlOAT_T) { 
-     op_type--;
-     op_type[0] = 'f'; 
-   }
+	if(IS_TAB(t)) {
+		char* tmp = ll_type(t->tab->elem);
+		asprintf(&ret, "[%d x %s]", t->tab->size, tmp);
+		free(tmp);
+	}
 
-   sprintf($$->ll_c,"%s%s%%%d = %s %s %%%d, %%%d\n", $1->ll_c, $3->ll_c, $$->reg, op_type, ll_type($$->type), $1->reg, $3->reg);
+	if(IS_FUNC(t))
+	{
+		int size;
+		char* tmp = ll_type(t->func->ret);
+		asprintf(&ret, "%s (", tmp);
+		free(tmp); 
+		size = strlen(ret) +1;
+		for(int i=0; i< t->func->nb_param; i++) 
+		{
+			tmp = ll_type(t->func->params[i]);
+			size += strlen(tmp) +2;
+			ret = realloc(ret, size);
+			strcat(ret, tmp);
+			if(i != t->func->nb_param-1)
+				strcat(ret, ", ");
+			free(tmp);
+		}
+		ret = realloc(ret, size +2);
+		strcat(ret, " )");
+	}
+	return ret;
+}
 
- }
-
-
+int new_reg() //a faire 
+{
+	static int curReg =0;
+	curReg++;
+	return curReg;
+}
+	
 
 int main (int argc, char *argv[]) {
     FILE *input = NULL;
@@ -296,5 +346,63 @@ int main (int argc, char *argv[]) {
     return 0;
 }
 
+var_s* new_empty_var_s()
+{
+	type_s* ret = malloc(sizeof(*ret));
+	memset(ret, 0, sizeof(*ret));
+	ret->type = new_empty_type_s();
+	return ret;
+}
 
+expr_s* new_empty_expr_s()
+{
+	expr_s* ret = malloc(sizeof(*ret));
+	memset(ret, 0, sizeof(*ret));
+	ret->type = new_empty_type_s();
+	return ret;
+}
+
+type_s* new_empty_type_s()
+{
+	type_s* ret = malloc(sizeof(*ret));
+	memset(ret, 0, sizeof(*ret));
+	return ret;	
+}
+
+void free_type_s(type_s* t)
+{
+	if(IS_TAB(t)) free_type_t(t->tab);
+	if(IS_FUNC(t)) free_type_f(t->func);
+	free(t);	
+}
+
+void free_type_t(type_t* t)
+{
+	free_type_s(t->elem);
+	free(t);	
+}
+
+void free_type_f(type_f* f)
+{
+	free_type_s(f->ret);
+	for(int i =0; i<f->nb_param; i++)
+		free_type_s(f->params[i]);
+	if(f->nb_param != 0)
+		free(f->params);
+	free(f);	
+}
+
+void free_expr_s(expr_s* t)
+{
+	free(t->ll_c);
+	free_type_s(t->type);
+	free(t);
+}
+
+void free_var_s(var_s* f)
+{
+	free(f->s_id);
+	free_type_s(f->type);
+	free(f);
+}
 
