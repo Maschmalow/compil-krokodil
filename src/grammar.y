@@ -124,9 +124,9 @@ declaration
 : type_name declarator ';'{ $$->type = $2->type;
                                         type_s* curT = $$->type;
                                         if($$->type->tab != NULL){ 
-					    while( curT->tab != NULL  ) curT = curT->tab->elem; 
-					  curT->prim = $1;
-					}
+                                            while( curT->tab != NULL  ) curT = curT->tab->elem; 
+                                          curT->prim = $1;
+                                        }
                                         else if($$->type->func != NULL) {}
                                         else { $$->type->prim = $1; }
                                         ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
@@ -134,9 +134,9 @@ declaration
                                         $$->flags |= VAR_EXTERN; 
                                         type_s* curT = $$->type;
                                         if($$->type->tab != NULL){ 
-					    while( curT->tab != NULL  ) curT = curT->tab->elem; 
-					  curT->prim = $2;
-					}
+                                            while( curT->tab != NULL  ) curT = curT->tab->elem; 
+                                          curT->prim = $2;
+                                        }
                                         else if($$->type->func != NULL) {}
                                         else { $$->type->prim = $2; }
                                         ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
@@ -155,8 +155,8 @@ declarator
 | '(' declarator ')' { $$ = $2; $2 = NULL; }
 | declarator '[' CONSTANTI ']' {$$->type->tab->size = $3; $$->type->tab->elem = $1->type; }
 | declarator '[' ']' {$$->type->tab->size = 0; $$->type->tab->elem = $1->type; }
-| declarator '(' parameter_list ')' {$$->type->func = $3; }
-| declarator '(' ')' {$$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = $1->s_id; }
+| declarator '(' parameter_list ')' {$$ = new_empty_var_s(); $$->type->func = $3; }
+| declarator '(' ')' {$$ = new_empty_var_s(); $$->type->func = malloc(sizeof(*$$->type->func)); $$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = strdup($1->s_id); free_var_s($1); }
 ;
 
 parameter_list
