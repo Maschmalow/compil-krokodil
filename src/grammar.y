@@ -152,7 +152,7 @@ type_name
 
 declarator
 : IDENTIFIER {  $$ = new_empty_var_s(); $$->s_id = $1; }
-| '(' declarator ')' { $$ = $2; $2 = NULL; }
+| '(' declarator ')' { $$ = $2;  }
 | declarator '[' CONSTANTI ']' {$$->type->tab->size = $3; $$->type->tab->elem = $1->type; }
 | declarator '[' ']' {$$->type->tab->size = 0; $$->type->tab->elem = $1->type; }
 | declarator '(' parameter_list ')' {$$ = new_empty_var_s(); $$->type->func = $3; }
@@ -160,8 +160,8 @@ declarator
 ;
 
 parameter_list
-: parameter_declaration {$$->nb_param = 1;  $$->params[0] = $1;}
-| parameter_list ',' parameter_declaration {$$->nb_param = $1->nb_param+1; $$->params = $1->params; $$->params[$1->nb_param] = $3;}
+: parameter_declaration {$$ = malloc(sizeof(*$$)); $$->params = malloc(sizeof(*$$->params)); $$->nb_param = 1;  $$->params[0] = $1;}
+| parameter_list ',' parameter_declaration {$$ = $1; $$->params = realloc($$->params, $$->nb_param+1); $$->params[$$->nb_param] = $3; $$->nb_param++;  }
 ;
 
 parameter_declaration
@@ -348,7 +348,7 @@ int main (int argc, char *argv[]) {
 
 var_s* new_empty_var_s()
 {
-	type_s* ret = malloc(sizeof(*ret));
+	var_s* ret = malloc(sizeof(*ret));
 	memset(ret, 0, sizeof(*ret));
 	ret->type = new_empty_type_s();
 	return ret;
