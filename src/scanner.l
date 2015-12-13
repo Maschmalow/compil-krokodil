@@ -5,7 +5,7 @@
 #include "grammar.tab.h"
 void count();
 int comment ();
-int depth = 0;
+int cur_depth = 0;
 int bloc_id[MAX_DEPTH] = {0};
 
 %}
@@ -41,8 +41,8 @@ L[a-zA-Z_]
 "=="		{ count(); return(EQ_OP); }
 "!="		{ count(); return(NE_OP); }
 ";"		{ count(); return(';'); }
-"{"      	{ count(); depth++; bloc_id[depth]++; return('{'); }
-"}"      	{ count(); depth--; return('}'); }
+"{"      	{ count(); cur_depth++; bloc_id[cur_depth]++; return('{'); }
+"}"      	{ count(); cur_depth--; return('}'); }
 ","		{ count(); return(','); }
 "/"		{ count(); return('/'); }
 "="		{ count(); return('='); }

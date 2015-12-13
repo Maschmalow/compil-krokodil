@@ -1,6 +1,7 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include "types.h"
 
 struct expr_s;
 typedef struct expr_s expr_s;

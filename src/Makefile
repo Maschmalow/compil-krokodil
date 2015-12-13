@@ -5,7 +5,7 @@ CC=gcc
 
 all:parse
 
-parse:grammar.c scanner.c
+parse:grammar.c scanner.c types.c data.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 grammar.c:grammar.y
@@ -13,6 +13,7 @@ grammar.c:grammar.y
 
 %.c:%.l
 	$(LEX) -o $@ $^
+    
 
 clean:
 	rm -f grammar.c scanner.c parse

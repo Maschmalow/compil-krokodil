@@ -5,6 +5,8 @@
     #include <string.h>
 
     #define NB_VAR_MAX 10000
+    #define ALLOC(x) x = malloc(sizeof(*(x)))
+    #define ALLOCN(x, n) x = malloc(n*sizeof(*(x)))
     #include "parse.h"
   
 
@@ -12,7 +14,7 @@
     int yylex ();
     int yyerror ();
     
-    extern int depth;
+    extern int cur_depth;
     
     int new_reg();
     const char* op(char s);
@@ -121,26 +123,18 @@ assignment_operator
 ;
 
 declaration
-: type_name declarator ';'{ $$->type = $2->type;
-                                        type_s* curT = $$->type;
-                                        if($$->type->tab != NULL){ 
-                                            while( curT->tab != NULL  ) curT = curT->tab->elem; 
-                                          curT->prim = $1;
-                                        }
-                                        else if($$->type->func != NULL) {}
-                                        else { $$->type->prim = $1; }
+: type_name declarator ';'{ $$ = $2;
+                                        $$->depth =cur_depth;
+                                        assign_deepest($$->type, $1);
                                         ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
-| EXTERN type_name declarator ';'{ $$->type = $3->type;
-                                        $$->flags |= VAR_EXTERN; 
-                                        type_s* curT = $$->type;
-                                        if($$->type->tab != NULL){ 
-                                            while( curT->tab != NULL  ) curT = curT->tab->elem; 
-                                          curT->prim = $2;
-                                        }
-                                        else if($$->type->func != NULL) {}
-                                        else { $$->type->prim = $2; }
-                                        ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
-;
+                                        
+                                        
+                                        
+| EXTERN type_name declarator ';'{ $$ = $2;
+                                                    $$->flags |= VAR_EXTERN;
+                                                    $$->depth =cur_depth;
+                                                    assign_deepest($$->type, $2);
+                                                    ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
 
 
 type_name
@@ -153,14 +147,14 @@ type_name
 declarator
 : IDENTIFIER {  $$ = new_empty_var_s(); $$->s_id = $1; }
 | '(' declarator ')' { $$ = $2;  }
-| declarator '[' CONSTANTI ']' {$$->type->tab->size = $3; $$->type->tab->elem = $1->type; }
-| declarator '[' ']' {$$->type->tab->size = 0; $$->type->tab->elem = $1->type; }
+| declarator '[' CONSTANTI ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = $3; $$->type->tab->elem = $1->type; }
+| declarator '[' ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = 0; $$->type->tab->elem = $1->type; }
 | declarator '(' parameter_list ')' {$$ = new_empty_var_s(); $$->type->func = $3; }
-| declarator '(' ')' {$$ = new_empty_var_s(); $$->type->func = malloc(sizeof(*$$->type->func)); $$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = strdup($1->s_id); free_var_s($1); }
+| declarator '(' ')' {$$ = new_empty_var_s(); ALLOC($$->type->func); $$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = strdup($1->s_id); free_var_s($1); }
 ;
 
 parameter_list
-: parameter_declaration {$$ = malloc(sizeof(*$$)); $$->params = malloc(sizeof(*$$->params)); $$->nb_param = 1;  $$->params[0] = $1;}
+: parameter_declaration {ALLOC($$); ALLOC($$->params); $$->nb_param = 1;  $$->params[0] = $1;}
 | parameter_list ',' parameter_declaration {$$ = $1; $$->params = realloc($$->params, $$->nb_param+1); $$->params[$$->nb_param] = $3; $$->nb_param++;  }
 ;
 
@@ -238,12 +232,6 @@ extern FILE *yyin;
 
 char *file_name = NULL;
 
-int yyerror (char *s) {
-    fflush (stdout);
-    fprintf (stderr, "%s:%d:%d: %s\n", file_name, yylineno, column, s);
-    return 0;
-}
-
 const char* op(char s){
   if(s == '/') return "div";
   if(s == '*') return "mul";
@@ -273,44 +261,7 @@ void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3)
 	
 }
  
-char* ll_type(type_s* t) {
-	char* ret;
-	if(IS_PRIMARY(t))
-	{
-		if(t->prim == VOID_T)  return strdup("void");
-		if(t->prim == CHAR_T)  return strdup("int8");
-		if(t->prim == INT_T)   return strdup("int32");
-		if(t->prim == FLOAT_T) return strdup("flaot");
-	}
 
-	if(IS_TAB(t)) {
-		char* tmp = ll_type(t->tab->elem);
-		asprintf(&ret, "[%d x %s]", t->tab->size, tmp);
-		free(tmp);
-	}
-
-	if(IS_FUNC(t))
-	{
-		int size;
-		char* tmp = ll_type(t->func->ret);
-		asprintf(&ret, "%s (", tmp);
-		free(tmp); 
-		size = strlen(ret) +1;
-		for(int i=0; i< t->func->nb_param; i++) 
-		{
-			tmp = ll_type(t->func->params[i]);
-			size += strlen(tmp) +2;
-			ret = realloc(ret, size);
-			strcat(ret, tmp);
-			if(i != t->func->nb_param-1)
-				strcat(ret, ", ");
-			free(tmp);
-		}
-		ret = realloc(ret, size +2);
-		strcat(ret, " )");
-	}
-	return ret;
-}
 
 int new_reg() //a faire 
 {
@@ -319,6 +270,11 @@ int new_reg() //a faire
 	return curReg;
 }
 	
+int yyerror (char *s) {
+    fflush (stdout);
+    fprintf (stderr, "%s:%d:%d: %s\n", file_name, yylineno, column, s);
+    return 0;
+}
 
 int main (int argc, char *argv[]) {
     FILE *input = NULL;
@@ -345,64 +301,3 @@ int main (int argc, char *argv[]) {
     free (file_name);
     return 0;
 }
-
-var_s* new_empty_var_s()
-{
-	var_s* ret = malloc(sizeof(*ret));
-	memset(ret, 0, sizeof(*ret));
-	ret->type = new_empty_type_s();
-	return ret;
-}
-
-expr_s* new_empty_expr_s()
-{
-	expr_s* ret = malloc(sizeof(*ret));
-	memset(ret, 0, sizeof(*ret));
-	ret->type = new_empty_type_s();
-	return ret;
-}
-
-type_s* new_empty_type_s()
-{
-	type_s* ret = malloc(sizeof(*ret));
-	memset(ret, 0, sizeof(*ret));
-	return ret;	
-}
-
-void free_type_s(type_s* t)
-{
-	if(IS_TAB(t)) free_type_t(t->tab);
-	if(IS_FUNC(t)) free_type_f(t->func);
-	free(t);	
-}
-
-void free_type_t(type_t* t)
-{
-	free_type_s(t->elem);
-	free(t);	
-}
-
-void free_type_f(type_f* f)
-{
-	free_type_s(f->ret);
-	for(int i =0; i<f->nb_param; i++)
-		free_type_s(f->params[i]);
-	if(f->nb_param != 0)
-		free(f->params);
-	free(f);	
-}
-
-void free_expr_s(expr_s* t)
-{
-	free(t->ll_c);
-	free_type_s(t->type);
-	free(t);
-}
-
-void free_var_s(var_s* f)
-{
-	free(f->s_id);
-	free_type_s(f->type);
-	free(f);
-}
-
