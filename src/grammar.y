@@ -2,7 +2,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>    
-    #include "port.h"
+    #include "../lib/libut.h"
     
     #include "parse.h"
 
@@ -18,6 +18,7 @@
     
     extern int cur_depth;
     
+    var_map_list vars = NULL;
     int new_reg();
     const char* op(char s);
     void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3);
@@ -91,13 +92,13 @@ unary_operator
 
 
 multiplicative_expression
-: unary_expression { $$ = $1; $1 = NULL; }
+: unary_expression { $$ = $1; }
 | multiplicative_expression '*' unary_expression { binary_op_semantics($$, $1, op('*'), $3); }
 | multiplicative_expression '/' unary_expression { binary_op_semantics($$, $1, op('/'), $3); }
 ;
 
 additive_expression
-: multiplicative_expression { $$ = $1; $1 = NULL; }
+: multiplicative_expression { $$ = $1; }
 | additive_expression '+' multiplicative_expression { binary_op_semantics($$, $1, op('+'), $3); }
 | additive_expression '-' multiplicative_expression { binary_op_semantics($$, $1, op('-'), $3); }
 ;

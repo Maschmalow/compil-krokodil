@@ -10,6 +10,16 @@ struct var_s;
 typedef struct var_s var_s;
 
 
+struct var_map;
+typedef struct var_map var_map;
+typedef var_map* var_map_list; 
+
+struct var_map {
+    var_s* map;
+    
+    var_map* next; //for utlist
+}
+
 struct expr_s {
   int  reg;
   char* ll_c;
@@ -22,6 +32,8 @@ struct var_s {
   int flags;
   type_s* type;
   int depth;
+  
+  UT_hash_handle hh; //for uthash
 };
 
 #define NO_FLAG 0
