@@ -1,4 +1,4 @@
-LEX=lex
+LEX=flex
 YACC=bison
 CFLAGS=-Wall -std=c99 -D_GNU_SOURCE
 CC=gcc

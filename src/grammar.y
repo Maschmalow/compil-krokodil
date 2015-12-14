@@ -1,13 +1,14 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    #include <search.h>
-    #include <string.h>
+    #include <string.h>    
+    
+    #include "parse.h"
 
     #define NB_VAR_MAX 10000
     #define ALLOC(x) x = malloc(sizeof(*(x)))
     #define ALLOCN(x, n) x = malloc(n*sizeof(*(x)))
-    #include "parse.h"
+    
   
 
     extern int yylineno;
@@ -126,15 +127,17 @@ declaration
 : type_name declarator ';'{ $$ = $2;
                                         $$->depth =cur_depth;
                                         assign_deepest($$->type, $1);
-                                        ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
+                                        
+                                        }
                                         
                                         
                                         
-| EXTERN type_name declarator ';'{ $$ = $2;
+| EXTERN type_name declarator ';'{ $$ = $3;
                                                     $$->flags |= VAR_EXTERN;
-                                                    $$->depth =cur_depth;
+                                                    $$->depth =cur_depth;                                                    
                                                     assign_deepest($$->type, $2);
-                                                    ENTRY e = {$$->s_id, $$}; hsearch(e,ENTER); }
+
+                                                    }
 
 
 type_name
@@ -293,10 +296,7 @@ int main (int argc, char *argv[]) {
 	fprintf (stderr, "%s: error: no input file\n", *argv);
 	return 1;
     }
-    if(!hcreate(NB_VAR_MAX)) {
-        perror("hcreate");
-       return 1;
-    }
+    
     yyparse ();
     free (file_name);
     return 0;
