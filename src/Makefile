@@ -1,6 +1,6 @@
 LEX=flex
 YACC=bison
-CFLAGS=-Wall -std=gnu11 
+CFLAGS=-Wall -std=gnu11 -D_GNU_SOURC
 CC=gcc
 
 all:parse
