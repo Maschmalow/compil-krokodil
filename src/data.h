@@ -18,7 +18,7 @@ struct var_map {
     var_s* map;
     
     var_map* next; //for utlist
-}
+};
 
 struct expr_s {
   int  reg;
