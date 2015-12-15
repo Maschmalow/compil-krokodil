@@ -3,26 +3,19 @@
     #include <stdlib.h>
     #include <string.h>    
     #include "../lib/libut.h"
-    
+
     #include "parse.h"
 
-    #define NB_VAR_MAX 10000
-    #define ALLOC(x) x = malloc(sizeof(*(x)))
-    #define NALLOC(x, n) x = malloc((n)*sizeof(*(x)))
-    
-  
 
     extern int yylineno;
     int yylex ();
     int yyerror ();
-    
-    
+
+
     int new_reg();
     void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
     
 
-
-      
 %}
 
 %token <s_id> IDENTIFIER
@@ -53,7 +46,7 @@
 %%
 
 primary_expression
-: IDENTIFIER { $$ = new_empty_expr_s(); var_s* var; for(varl_lmap* cur = cur_vars; (var = hash_find(cur, $1)) != NULL; cur = cur->up);  copy_type_s($$->type,  var->type); }
+: IDENTIFIER { $$ = new_empty_expr_s(); var_s* var; for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1)) != NULL; cur = cur->up);  copy_type_s($$->type,  var->type); }
 | CONSTANTI 
 | CONSTANTF 
 | '(' expression ')' { $$ = $2; }
