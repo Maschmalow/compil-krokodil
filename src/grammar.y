@@ -205,8 +205,8 @@ iteration_statement
 ;
 
 jump_statement
-: RETURN ';'
-| RETURN expression ';'
+: RETURN ';' {printf("20:%d\n", cur_depth);}
+| RETURN expression ';' {printf("21:%d\n", cur_depth);}
 ;
 
 program
