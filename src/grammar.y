@@ -125,15 +125,13 @@ assignment_operator
 
 declaration
 : type_name declarator ';'{ $$ = $2;
-                                        $$->depth =cur_depth;
                                         assign_deepest($$->type, $1);
                                         printf("1:%d\n", cur_depth);
                                         HASH_ADD_KEYPTR(cur_vars->map, $$);
                                         }
                                 
 | EXTERN type_name declarator ';'{ $$ = $3;
-                                                    $$->flags |= VAR_EXTERN;
-                                                    $$->depth =cur_depth;                                                    
+                                                    $$->flags |= VAR_EXTERN;                                      
                                                     assign_deepest($$->type, $2);
                                                     printf("2:%d\n", cur_depth);
                                                     HASH_ADD_KEYPTR(cur_vars->map, $$);
