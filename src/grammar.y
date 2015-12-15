@@ -148,10 +148,10 @@ type_name
 declarator
 : IDENTIFIER {  $$ = new_empty_var_s(); $$->s_id = $1; }
 | '(' declarator ')' { $$ = $2;  }
-| declarator '[' CONSTANTI ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = $3; $$->type->tab->elem = $1->type; }
-| declarator '[' ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = 0; $$->type->tab->elem = $1->type; }
-| declarator '(' parameter_list ')' {$$ = new_empty_var_s(); $$->type->func = $3; }
-| declarator '(' ')' {$$ = new_empty_var_s(); ALLOC($$->type->func); $$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = strdup($1->s_id); free_var_s($1); }
+| declarator '[' CONSTANTI ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = $3; $$->s_id = strdup($1->s_id); $$->type->tab->elem = $1->type; }
+| declarator '[' ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = 0; $$->s_id = strdup($1->s_id); $$->type->tab->elem = $1->type; }
+| declarator '(' parameter_list ')' {$$ = new_empty_var_s(); $$->s_id = strdup($1->s_id); $$->type->func = $3; }
+| declarator '(' ')' {$$ = new_empty_var_s(); ALLOC($$->type->func); $$->s_id = strdup($1->s_id); $$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = strdup($1->s_id); free_var_s($1); }
 ;
 
 parameter_list
