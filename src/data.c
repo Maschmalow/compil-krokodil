@@ -4,7 +4,15 @@
 
 #include "data.h"
 
-
+void init_var_lmap(var_s* map, int depth, var_lmap* up)
+{
+    var_lmap* ret = malloc(sizeof(*ret));
+    ret.map = map;
+    ret.depth = depth;
+    ret.up = up;
+ 
+    return ret;
+}
 
 var_s* new_empty_var_s()
 {

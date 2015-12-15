@@ -45,6 +45,7 @@ struct var_s {
 #define NO_FLAG 0
 #define VAR_EXTERN 1
 
+var_lmap* new_var_lmap(var_s* map, int depth, var_lmap* up);
 expr_s* new_empty_expr_s();
 var_s* new_empty_var_s();
 
