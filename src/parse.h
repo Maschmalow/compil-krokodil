@@ -7,5 +7,7 @@
 #include "data.h"
 
 
+extern int cur_depth;   
+extern var_lmap* cur_vars;
 
 #endif

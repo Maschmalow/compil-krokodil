@@ -16,7 +16,6 @@
     int yylex ();
     int yyerror ();
     
-    extern int cur_depth;   
     
     int new_reg();
     const char* op(char s);
@@ -129,6 +128,7 @@ declaration
                                         $$->depth =cur_depth;
                                         assign_deepest($$->type, $1);
                                         printf("1:%d\n", cur_depth);
+                                        HASH_ADD_KEYPTR(cur_vars->map, $$);
                                         }
                                 
 | EXTERN type_name declarator ';'{ $$ = $3;
@@ -136,6 +136,7 @@ declaration
                                                     $$->depth =cur_depth;                                                    
                                                     assign_deepest($$->type, $2);
                                                     printf("2:%d\n", cur_depth);
+                                                    HASH_ADD_KEYPTR(cur_vars->map, $$);
                                                     }
 
 
@@ -299,6 +300,7 @@ int main (int argc, char *argv[]) {
     }
     
     yyparse ();
+    free_var_lmap(cur_vars);
     free (file_name);
     return 0;
 }

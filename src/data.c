@@ -22,7 +22,17 @@ expr_s* new_empty_expr_s()
 	return ret;
 }
 
+void  free_var_lmap(var_lmap* v)
+{
+    struct var_s *cur_var, *tmp;
 
+    HASH_ITER(hh, v->map, cur_var, tmp) {
+        HASH_DEL(v->map, cur_var);  
+        free_var_s(cur_var);           
+    }
+  
+    free(v);
+}
 
 void free_expr_s(expr_s* t)
 {
