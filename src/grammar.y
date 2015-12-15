@@ -243,7 +243,7 @@ const char* op(char s){
 void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3)
  {
      printf("op %s:%d\n", $2, cur_depth); 
-     return;
+
 	$$ = new_empty_expr_s();
 	$$->reg = new_reg(/* id bloc, depth? */);
 	
