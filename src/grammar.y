@@ -135,7 +135,8 @@ declaration
                                                     $$->flags |= VAR_EXTERN;
                                                     $$->depth =cur_depth;                                                    
                                                     assign_deepest($$->type, $2);
-                                                    printf("2:%d", cur_depth);
+                                                    printf("2:%d
+", cur_depth);
                                                     }
 
 
@@ -165,17 +166,25 @@ parameter_declaration
 ;
 
 statement 
-: compound_statement {printf("3:%d", cur_depth);}
-| expression_statement {printf("4:%d", cur_depth);}
-| selection_statement {printf("5:%d", cur_depth);}
-| iteration_statement {printf("6:%d", cur_depth);}
-| jump_statement {printf("7:%d", cur_depth);}
+: compound_statement {printf("3:%d
+", cur_depth);}
+| expression_statement {printf("4:%d
+", cur_depth);}
+| selection_statement {printf("5:%d
+", cur_depth);}
+| iteration_statement {printf("6:%d
+", cur_depth);}
+| jump_statement {printf("7:%d
+", cur_depth);}
 ;
 
 compound_statement
-: '{' '}'  {printf("8:%d", cur_depth);}
-| '{' statement_list '}' {printf("9:%d", cur_depth);}
-| '{' declaration_list statement_list '}' {printf("10:%d", cur_depth);}
+: '{' '}'  {printf("8:%d
+", cur_depth);}
+| '{' statement_list '}' {printf("9:%d
+", cur_depth);}
+| '{' declaration_list statement_list '}' {printf("10:%d
+", cur_depth);}
 ;
 
 declaration_list
@@ -215,12 +224,15 @@ program
 ;
 
 external_declaration
-: function_definition {printf("11:%d", cur_depth);}
-| declaration  {printf("12:%d", cur_depth);}
+: function_definition {printf("11:%d
+", cur_depth);}
+| declaration  {printf("12:%d
+", cur_depth);}
 ;
 
 function_definition
-: type_name declarator compound_statement {printf("13:%d", cur_depth);}
+: type_name declarator compound_statement {printf("13:%d
+", cur_depth);}
 ;
 
 %%
