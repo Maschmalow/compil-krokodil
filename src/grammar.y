@@ -18,7 +18,7 @@
     
     
     int new_reg();
-    void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3);
+    void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
     
 
 
@@ -90,14 +90,14 @@ unary_operator
 
 multiplicative_expression
 : unary_expression { $$ = $1; }
-| multiplicative_expression '*' unary_expression { binary_op_semantics($$, $1, "mul", $3); }
-| multiplicative_expression '/' unary_expression { binary_op_semantics($$, $1, "div", $3); }
+| multiplicative_expression '*' unary_expression { binary_op_semantics(&$$, $1, "mul", $3); }
+| multiplicative_expression '/' unary_expression { binary_op_semantics(&$$, $1, "div", $3); }
 ;
 
 additive_expression
 : multiplicative_expression { $$ = $1; }
-| additive_expression '+' multiplicative_expression { binary_op_semantics($$, $1, "add", $3); }
-| additive_expression '-' multiplicative_expression { binary_op_semantics($$, $1, "sub", $3); }
+| additive_expression '+' multiplicative_expression { binary_op_semantics(&$$, $1, "add", $3); }
+| additive_expression '-' multiplicative_expression { binary_op_semantics(&$$, $1, "sub", $3); }
 ;
 
 comparison_expression
@@ -233,27 +233,28 @@ extern FILE *yyin;
 char *file_name = NULL;
 
 
-void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3)
+void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
  {
-     printf("op %s:%d\n", $2, cur_depth); 
+     printf("op %s:%d\n", arg2, cur_depth); 
 
-	$$ = new_empty_expr_s();
-	$$->reg = new_reg(/* id bloc, depth? */);
+	*resultp = new_empty_expr_s();
+    expr_s* result = *resultp;
+	result->reg = new_reg(/* id bloc, depth? */);
 	
-	$$->type->prim = CHAR_T;
-	if($1->type->prim == INT_T || $3->type->prim == INT_T || *$2 == 'm') $$->type->prim = INT_T;
-	if($1->type->prim == FLOAT_T || $3->type->prim == FLOAT_T || *$2 == 'd') $$->type->prim = FLOAT_T;
+	result->type->prim = CHAR_T;
+	if(arg1->type->prim == INT_T || arg3->type->prim == INT_T || *arg2 == 'm') result->type->prim = INT_T;
+	if(arg1->type->prim == FLOAT_T || arg3->type->prim == FLOAT_T || *arg2 == 'd') result->type->prim = FLOAT_T;
 
 	char op_type[2] = {0};
-	if($$->type->prim == FLOAT_T) { 
+	if(result->type->prim == FLOAT_T) { 
 		op_type[0] = 'f'; 
 	}
 	
 	char* tmp = ll_type($$->type);
-	asprintf(&($$->ll_c),"%s%s%%%d = %s%s %s %%%d, %%%d\n", $1->ll_c, $3->ll_c, $$->reg, op_type, $2, tmp, $1->reg, $3->reg);
+	asprintf(&(result->ll_c),"%s%s%%%d = %s%s %s %%%d, %%%d\n", arg1->ll_c, arg3->ll_c, result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
 	free(tmp);
-	free_expr_s($1);
-	free_expr_s($3);
+	free_expr_s(arg1);
+	free_expr_s(arg3);
 	
 }
  
