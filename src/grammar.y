@@ -16,9 +16,8 @@
     int yylex ();
     int yyerror ();
     
-    extern int cur_depth;
+    extern int cur_depth;   
     
-    var_map_list vars = NULL;
     int new_reg();
     const char* op(char s);
     void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3);
@@ -129,16 +128,14 @@ declaration
 : type_name declarator ';'{ $$ = $2;
                                         $$->depth =cur_depth;
                                         assign_deepest($$->type, $1);
-                                        
+                                        printf("1:%d\n", cur_depth);
                                         }
-                                        
-                                        
-                                        
+                                
 | EXTERN type_name declarator ';'{ $$ = $3;
                                                     $$->flags |= VAR_EXTERN;
                                                     $$->depth =cur_depth;                                                    
                                                     assign_deepest($$->type, $2);
-
+                                                    printf("2:%d", cur_depth);
                                                     }
 
 
@@ -167,18 +164,18 @@ parameter_declaration
 : type_name declarator {$$ = $2->type;}
 ;
 
-statement
-: compound_statement
-| expression_statement
-| selection_statement
-| iteration_statement
-| jump_statement
+statement 
+: compound_statement {printf("3:%d", cur_depth);}
+| expression_statement {printf("4:%d", cur_depth);}
+| selection_statement {printf("5:%d", cur_depth);}
+| iteration_statement {printf("6:%d", cur_depth);}
+| jump_statement {printf("7:%d", cur_depth);}
 ;
 
 compound_statement
-: '{' '}'
-| '{' statement_list '}'
-| '{' declaration_list statement_list '}'
+: '{' '}'  {printf("8:%d", cur_depth);}
+| '{' statement_list '}' {printf("9:%d", cur_depth);}
+| '{' declaration_list statement_list '}' {printf("10:%d", cur_depth);}
 ;
 
 declaration_list
@@ -218,12 +215,12 @@ program
 ;
 
 external_declaration
-: function_definition
-| declaration
+: function_definition {printf("11:%d", cur_depth);}
+| declaration  {printf("12:%d", cur_depth);}
 ;
 
 function_definition
-: type_name declarator compound_statement
+: type_name declarator compound_statement {printf("13:%d", cur_depth);}
 ;
 
 %%
@@ -246,6 +243,7 @@ const char* op(char s){
 
 void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3)
  {
+     return;
 	$$ = new_empty_expr_s();
 	$$->reg = new_reg(/* id bloc, depth? */);
 	

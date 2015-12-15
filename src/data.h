@@ -13,14 +13,13 @@ struct var_s;
 typedef struct var_s var_s;
 
 
-struct var_map;
-typedef struct var_map var_map;
-typedef var_map* var_map_list; 
+struct var_lmap;
+typedef struct var_lmap var_lmap;
 
-struct var_map {
+struct var_lmap {
     var_s* map;
     
-    var_map* next; //for utlist
+    var_lmap* up; 
 };
 
 struct expr_s {
@@ -30,7 +29,7 @@ struct expr_s {
 };
 
 struct var_s {
-  char* s_id;
+  char* s_id;  //key
 
   int flags;
   type_s* type;

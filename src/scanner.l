@@ -6,7 +6,7 @@
 void count();
 int comment ();
 int cur_depth = 0;
-int bloc_id[MAX_DEPTH] = {0};
+var_lmap* cur_vars = NULL;
 
 %}
 D[0-9]
@@ -41,7 +41,7 @@ L[a-zA-Z_]
 "=="		{ count(); return(EQ_OP); }
 "!="		{ count(); return(NE_OP); }
 ";"		{ count(); return(';'); }
-"{"      	{ count(); cur_depth++; bloc_id[cur_depth]++; return('{'); }
+"{"      	{ count(); cur_depth++;  return('{'); }
 "}"      	{ count(); cur_depth--; return('}'); }
 ","		{ count(); return(','); }
 "/"		{ count(); return('/'); }
