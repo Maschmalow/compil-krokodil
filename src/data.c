@@ -4,6 +4,20 @@
 
 #include "data.h"
 
+
+void hash_add(var_lmap* head, var_s* item)
+{
+    HASH_ADD_KEYPTR(hh, head->map, item->s_id, strlen(item->s_id), item );
+}
+
+var_s* hash_find(var_lmap* head, char* key)
+{
+    var_s* ret;
+    HASH_FIND(hh, head->map, key, strlen(key), ret);
+    return ret;
+}
+
+
 var_lmap* new_var_lmap(var_s* map, int depth, var_lmap* up)
 {
     var_lmap* ret = malloc(sizeof(*ret));

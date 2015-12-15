@@ -58,6 +58,44 @@ type_s* new_empty_type_s()
 	return ret;	
 }
 
+
+void copy_type_s(type_s* t1, const type_s* t2)
+{
+    t1->prim = t2->prim;
+    if(IS_TAB(t2)) {
+        ALLOC(t1->tab);
+        copy_type_t(t1->tab, t2->tab);
+    } else {
+        t1->tab = t2->tab;
+    }
+    if(IS_FUNC(t2)) {
+        ALLOC(t1->func);
+        copy_type_f(t1->func, t2->func);
+    } else {
+        t1->func = t2->func;
+    }
+}
+
+void copy_type_t(type_s* t1, const type_s* t2)
+{
+    t1->size = t2->size;
+    ALLOC(t1->elem);
+    copy_type_s(t1->elem, t2->elem);
+}
+
+void copy_type_f(type_s* f1, const type_s* f2)
+{
+    t1->nb_param = t2->nb_param;
+    if(t2->params != NULL) {
+        NALLOC(t1->params, t2->nb_param);
+        for(int i = 0; i < t2->nb_param-1; i++) {
+            ALLOC(t1->params[i]);
+            copy_type_s(t1->params[i], t2->params[i]);
+        }
+        
+    }
+}
+
 void free_type_s(type_s* t)
 {
 	if(IS_TAB(t)) free_type_t(t->tab);

@@ -44,6 +44,11 @@ void assign_deepest(type_s* t, type_p p);
 
 type_s* new_empty_type_s();
 
+//deep copies. pointer 1 won't be allocated and needs to be initialized
+void copy_type_s(type_s* t1, const type_s* t2);
+void copy_type_t(type_s* t1, const type_s* t2);
+void copy_type_f(type_s* f1, const type_s* f2);
+
 void free_type_s(type_s* t);
 void free_type_t(type_t* t);
 void free_type_f(type_f* f);

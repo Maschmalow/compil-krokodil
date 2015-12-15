@@ -8,7 +8,7 @@
 
     #define NB_VAR_MAX 10000
     #define ALLOC(x) x = malloc(sizeof(*(x)))
-    #define ALLOCN(x, n) x = malloc(n*sizeof(*(x)))
+    #define NALLOC(x, n) x = malloc((n)*sizeof(*(x)))
     
   
 
@@ -53,7 +53,7 @@
 %%
 
 primary_expression
-: IDENTIFIER 
+: IDENTIFIER { $$ = new_empty_expr_s(); var_s* var; for(varl_lmap* cur = cur_vars; (var = hash_find(cur, $1)) != NULL; cur = cur->up);  copy_type_s($$->type,  var->type); }
 | CONSTANTI 
 | CONSTANTF 
 | '(' expression ')' { $$ = $2; }
@@ -126,14 +126,14 @@ declaration
 : type_name declarator ';'{ $$ = $2;
                                         assign_deepest($$->type, $1);
                                         printf("1:%d\n", cur_depth);
-                                        H_ADD(cur_vars->map, $$);
+                                        hash_add(cur_vars, $$);
                                         }
                                 
 | EXTERN type_name declarator ';'{ $$ = $3;
                                                     $$->flags |= VAR_EXTERN;                                      
                                                     assign_deepest($$->type, $2);
                                                     printf("2:%d\n", cur_depth);
-                                                    H_ADD(cur_vars->map, $$);
+                                                    hash_add(cur_vars, $$);
                                                     }
 
 
