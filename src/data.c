@@ -7,9 +7,9 @@
 void init_var_lmap(var_s* map, int depth, var_lmap* up)
 {
     var_lmap* ret = malloc(sizeof(*ret));
-    ret.map = map;
-    ret.depth = depth;
-    ret.up = up;
+    ret->map = map;
+    ret->depth = depth;
+    ret->up = up;
  
     return ret;
 }
