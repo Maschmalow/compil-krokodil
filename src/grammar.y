@@ -298,7 +298,6 @@ int main (int argc, char *argv[]) {
     }
     
     yyparse ();
-    free_var_lmap(cur_vars);
     free (file_name);
     return 0;
 }
