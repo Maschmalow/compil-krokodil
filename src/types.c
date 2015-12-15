@@ -76,21 +76,21 @@ void copy_type_s(type_s* t1, const type_s* t2)
     }
 }
 
-void copy_type_t(type_s* t1, const type_s* t2)
+void copy_type_t(type_t* t1, const type_t* t2)
 {
     t1->size = t2->size;
     ALLOC(t1->elem);
     copy_type_s(t1->elem, t2->elem);
 }
 
-void copy_type_f(type_s* f1, const type_s* f2)
+void copy_type_f(type_f* f1, const type_f* f2)
 {
-    t1->nb_param = t2->nb_param;
-    if(t2->params != NULL) {
-        NALLOC(t1->params, t2->nb_param);
-        for(int i = 0; i < t2->nb_param-1; i++) {
-            ALLOC(t1->params[i]);
-            copy_type_s(t1->params[i], t2->params[i]);
+    f1->nb_param = f2->nb_param;
+    if(f2->params != NULL) {
+        NALLOC(f1->params, f2->nb_param);
+        for(int i = 0; i < f2->nb_param-1; i++) {
+            ALLOC(f1->params[i]);
+            copy_type_s(f1->params[i], f2->params[i]);
         }
         
     }
