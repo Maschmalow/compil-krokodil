@@ -184,8 +184,8 @@ declaration_list
 ;
 
 statement_list
-: statement
-| statement_list statement
+: statement {printf("15:%d\n", cur_depth);}
+| statement_list statement {printf("16:%d\n", cur_depth);}
 ;
 
 expression_statement
@@ -194,9 +194,9 @@ expression_statement
 ;
 
 selection_statement
-: IF '(' expression ')' statement
-| IF '(' expression ')' statement ELSE statement
-| FOR '(' expression_statement expression_statement expression ')' statement
+: IF '(' expression ')' statement {printf("17:%d\n", cur_depth);}
+| IF '(' expression ')' statement ELSE statement {printf("18:%d\n", cur_depth);}
+| FOR '(' expression_statement expression_statement expression ')' statement {printf("19:%d\n", cur_depth);}
 ;
 
 iteration_statement
@@ -211,7 +211,7 @@ jump_statement
 
 program
 : external_declaration
-| program external_declaration
+| program external_declaration {printf("14:%d\n", cur_depth);}
 ;
 
 external_declaration
