@@ -18,7 +18,6 @@
     
     
     int new_reg();
-    const char* op(char s);
     void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3);
     
 
@@ -57,7 +56,7 @@ primary_expression
 : IDENTIFIER 
 | CONSTANTI 
 | CONSTANTF 
-| '(' expression ')'
+| '(' expression ')' { $$ = $2; }
 | MAP '(' postfix_expression ',' postfix_expression ')'
 | REDUCE '(' postfix_expression ',' postfix_expression ')'
 | IDENTIFIER '(' ')'
@@ -67,7 +66,7 @@ primary_expression
 ;
 
 postfix_expression
-: primary_expression
+: primary_expression { $$ = $1; }
 | postfix_expression '[' expression ']'
 ;
 
@@ -77,7 +76,7 @@ argument_expression_list
 ;
 
 unary_expression
-: postfix_expression
+: postfix_expression { $$ = $1; }
 | INC_OP unary_expression
 | DEC_OP unary_expression
 | unary_operator unary_expression
@@ -91,18 +90,18 @@ unary_operator
 
 multiplicative_expression
 : unary_expression { $$ = $1; }
-| multiplicative_expression '*' unary_expression { binary_op_semantics($$, $1, op('*'), $3); }
-| multiplicative_expression '/' unary_expression { binary_op_semantics($$, $1, op('/'), $3); }
+| multiplicative_expression '*' unary_expression { binary_op_semantics($$, $1, "mul", $3); }
+| multiplicative_expression '/' unary_expression { binary_op_semantics($$, $1, "div", $3); }
 ;
 
 additive_expression
 : multiplicative_expression { $$ = $1; }
-| additive_expression '+' multiplicative_expression { binary_op_semantics($$, $1, op('+'), $3); }
-| additive_expression '-' multiplicative_expression { binary_op_semantics($$, $1, op('-'), $3); }
+| additive_expression '+' multiplicative_expression { binary_op_semantics($$, $1, "add", $3); }
+| additive_expression '-' multiplicative_expression { binary_op_semantics($$, $1, "sub", $3); }
 ;
 
 comparison_expression
-: additive_expression
+: additive_expression { $$ = $1; }
 | additive_expression '<' additive_expression
 | additive_expression '>' additive_expression
 | additive_expression LE_OP additive_expression
@@ -113,7 +112,7 @@ comparison_expression
 
 expression
 : unary_expression assignment_operator comparison_expression
-| comparison_expression
+| comparison_expression { $$ = $1; }
 ;
 
 assignment_operator
@@ -233,12 +232,6 @@ extern FILE *yyin;
 
 char *file_name = NULL;
 
-const char* op(char s){
-  if(s == '/') return "div";
-  if(s == '*') return "mul";
-  if(s == '-') return "sub";
-  return  "add";
-}
 
 void binary_op_semantics(expr_s* $$, expr_s* $1, const char* $2, expr_s* $3)
  {
