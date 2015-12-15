@@ -6,8 +6,8 @@
 void count();
 int comment ();
 int cur_depth = 0;
-var_lmap* cur_vars = malloc(sizeof(*cur_vars));
-cur_vars = {EMPTY_MAP, 0, NULL};
+var_lmap root = {EMPTY_MAP, 0, NULL};
+var_lmap* cur_vars = &root;
 
 %}
 D[0-9]
