@@ -28,21 +28,22 @@ struct var_lmap {
 };
 
 struct expr_s {
-  int  reg;
-  char* ll_c;
-  type_s* type;
+    int  reg;
+    char* ll_c;
+    type_s* type;
 };
 
 struct var_s {
-  char* s_id;  //key
+    char* s_id;  //key
 
-  int flags;
-  type_s* type;
-  
-  UT_hash_handle hh; //for uthash
+    int addr_reg;
+    int flags;
+    type_s* type;
+
+    UT_hash_handle hh; //for uthash
 };
 
-#define NO_FLAG 0
+#define VAR_NO_FLAG 0
 #define VAR_EXTERN 1
 
 

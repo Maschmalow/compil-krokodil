@@ -142,8 +142,8 @@ declarator
 | '(' declarator ')' { $$ = $2;  }
 | declarator '[' CONSTANTI ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = $3; $$->s_id = strdup($1->s_id); $$->type->tab->elem = $1->type; }
 | declarator '[' ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = 0; $$->s_id = strdup($1->s_id); $$->type->tab->elem = $1->type; }
-| declarator '(' parameter_list ')' {$$ = new_empty_var_s(); $$->s_id = strdup($1->s_id); $$->type->func = $3; }
-| declarator '(' ')' {$$ = new_empty_var_s(); ALLOC($$->type->func); $$->s_id = strdup($1->s_id); $$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = strdup($1->s_id); free_var_s($1); }
+| declarator '(' parameter_list ')' {printf("22:%d\n", cur_depth); $$ = new_empty_var_s(); $$->s_id = strdup($1->s_id); $$->type->func = $3; }
+| declarator '(' ')' { $$ = new_empty_var_s(); ALLOC($$->type->func); $$->s_id = strdup($1->s_id); $$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = strdup($1->s_id); free_var_s($1); }
 ;
 
 parameter_list
@@ -255,7 +255,8 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 
 int new_reg() //a faire 
 {
-	static int curReg =0;
+    //reg 0 <=> no reg
+	static int curReg =1;
 	curReg++;
 	return curReg;
 }
