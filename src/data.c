@@ -5,9 +5,14 @@
 #include "data.h"
 
 
-void hash_add(var_lmap* head, var_s* item)
+void hash_add(var_lmap* head, const var_s* item)
 {
-    HASH_ADD_KEYPTR(hh, head->map, item->s_id, strlen(item->s_id), item );
+    hash_add(&(head->map), item);
+}
+
+void hash_add(var_s** head, const var_s* item)
+{
+    HASH_ADD_KEYPTR(hh, head, item->s_id, strlen(item->s_id), item );
 }
 
 var_s* hash_find(var_lmap* head, char* key)
@@ -16,6 +21,29 @@ var_s* hash_find(var_lmap* head, char* key)
     HASH_FIND(hh, head->map, key, strlen(key), ret);
     return ret;
 }
+
+void add_all(var_lmap* dst, const var_s* src) 
+{
+    for(var_s* cur_var = src; cur_var != NULL; cur_var = cur_var->hh.next) {
+        hash_add(dst, cur_var);    
+    } 
+} 
+
+void  clear_var_map(var_s** map)
+{
+    HASH_CLEAR(hh, *map);  
+}
+
+void  free_var_map(var_s** map)
+{
+    struct var_s *cur_var, *tmp;
+
+    HASH_ITER(hh, *map, cur_var, tmp) {
+        HASH_DEL(*map, cur_var);  
+        free_var_s(cur_var);           
+    }
+}
+
 
 
 var_lmap* new_var_lmap(var_s* map, int depth, var_lmap* up)
@@ -44,17 +72,13 @@ expr_s* new_empty_expr_s()
 	return ret;
 }
 
+
 void  free_var_lmap(var_lmap* v)
 {
-    struct var_s *cur_var, *tmp;
-
-    HASH_ITER(hh, v->map, cur_var, tmp) {
-        HASH_DEL(v->map, cur_var);  
-        free_var_s(cur_var);           
-    }
-  
+    free_var_map(&(v->map));
     free(v);
 }
+
 
 void free_expr_s(expr_s* t)
 {

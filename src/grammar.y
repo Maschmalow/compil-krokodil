@@ -121,11 +121,12 @@ assignment_operator
 | SUB_ASSIGN
 ;
 
-declaration
+declaration //var_s*
 : type_name declarator ';'{ $$ = $2;
                                         assign_deepest($$->type, $1);
                                         printf("1:%d\n", cur_depth);
                                         hash_add(cur_vars, $$);
+                                        free_var_map(pending_map);
                                         }
                                 
 | EXTERN type_name declarator ';'{ $$ = $3;
@@ -133,17 +134,18 @@ declaration
                                                     assign_deepest($$->type, $2);
                                                     printf("2:%d\n", cur_depth);
                                                     hash_add(cur_vars, $$);
+                                                    free_var_map(pending_map);
                                                     }
 
 
-type_name
+type_name //type_p
 : VOID {$$ = VOID_T; }
 | INT {$$ = INT_T; }
 | FLOAT {$$ = FLOAT_T; }
 | CHAR {$$ = CHAR_T; }
 ;
 
-declarator
+declarator  //var_s*
 : IDENTIFIER {  $$ = new_empty_var_s(); $$->s_id = $1; }
 | '(' declarator ')' { $$ = $2;  }
 | declarator '[' CONSTANTI ']' { declarator_tab_semantics(&$$, $1, $3); }
@@ -152,13 +154,17 @@ declarator
 | declarator '(' ')' { declarator_func_semantics(&$$, $1, new_empty_type_f()); }
 ;
 
-parameter_list
-: parameter_declaration {ALLOC($$); ALLOC($$->params); $$->nb_param = 1;  $$->params[0] = $1;}
+parameter_list  //type_f*
+: parameter_declaration { $$ = new_empty_type_f(); ALLOC($$->params); $$->nb_param = 1;  $$->params[0] = $1;}
 | parameter_list ',' parameter_declaration {$$ = $1; $$->params = realloc($$->params, $$->nb_param+1); $$->params[$$->nb_param] = $3; $$->nb_param++;  }
 ;
 
-parameter_declaration
-: type_name declarator {$$ = $2->type;}
+parameter_declaration //type_s*
+: type_name declarator {assign_deepest($2->type, $1);                                             
+                                    hash_add(pending_map, $2);
+                                    $$ = new_empty_type_s(); 
+                                    copy_type_s($$, $2->type);
+                                    }
 ;
 
 statement 
