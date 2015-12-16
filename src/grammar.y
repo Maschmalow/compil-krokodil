@@ -161,7 +161,7 @@ parameter_list  //type_f*
 
 parameter_declaration //type_s*
 : type_name declarator {assign_deepest($2->type, $1);                                             
-                                    hash_add(pending_map, $2);
+                                    hash_add(&pending_map, $2);
                                     $$ = new_empty_type_s(); 
                                     copy_type_s($$, $2->type);
                                     }
