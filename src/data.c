@@ -26,7 +26,7 @@ void add_all(var_lmap* dst, var_s* src)
 
 void hash_add(var_s** head,  var_s* item)
 {
-    HASH_ADD_KEYPTR(hh, head, item->s_id, strlen(item->s_id), item );
+    HASH_ADD_KEYPTR(hh, *head, item->s_id, strlen(item->s_id), item );
 }
 
 void  clear_var_map(var_s** map)
