@@ -61,9 +61,18 @@ type_s* new_empty_type_s()
 
 type_f* new_empty_type_f()
 {
-    type_s* ret = malloc(sizeof(*ret));
+    type_f* ret = malloc(sizeof(*ret));
 	memset(ret, 0, sizeof(*ret));
     ret->ret = new_empty_type_s();
+    
+	return ret;	    
+}
+
+type_t* new_empty_type_t()
+{
+    type_t* ret = malloc(sizeof(*ret));
+	memset(ret, 0, sizeof(*ret));
+    ret->elem = new_empty_type_s();
     
 	return ret;	    
 }

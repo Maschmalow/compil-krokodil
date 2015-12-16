@@ -11,6 +11,7 @@
     int yylex ();
     int yyerror ();
 
+	var_s* pending_map;
 
     int new_reg();
     void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2);
@@ -48,7 +49,10 @@
 %%
 
 primary_expression
-: IDENTIFIER { $$ = new_empty_expr_s(); var_s* var; for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1)) != NULL; cur = cur->up);  copy_type_s($$->type,  var->type); }
+: IDENTIFIER { $$ = new_empty_expr_s();
+				var_s* var;
+				for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1)) != NULL; cur = cur->up);
+				copy_type_s($$->type,  var->type); }
 | CONSTANTI 
 | CONSTANTF 
 | '(' expression ')' { $$ = $2; }
@@ -229,27 +233,51 @@ char *file_name = NULL;
 
 void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2)
 {
-    *resultp = new_empty_var_s();
-    var_s* result = *resultp;
-    result->s_id = strdup(arg1->s_id);
-    ALLOC(result->type->tab);
-    result->type->tab->size = arg2;
-    copy_type_s(result->type->tab->elem, arg1->type);
-    free_var_s(arg1);
+	*resultp = arg1;
+	var_s* result = *resultp;
+	type_t* inner = new_empty_type_t();
+	inner->size = arg2;
+	
+	if(IS_PRIMARY(result->type)) 
+	{
+		result->type->tab = inner;
+	}
+	if(IS_TAB(result->type))
+	{
+		result->type->tab->elem->tab = inner;
+	}
+	if(IS_FUNC(result->type))
+	{
+		result->type->func->ret->tab = inner;
+	}
+	
+    
 }
 
 void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2)
 {
-     *resultp = new_empty_var_s();
-     var_s* result = *resultp;
-     resultp->s_id = strdup(arg1->s_id);
-     resultp->type->func = arg2; 
-     free_var_s(arg1);
+	*resultp = arg1;
+	var_s* result = *resultp;
+	type_f* inner = arg2;
+	
+	if(IS_PRIMARY(result->type)) 
+	{
+		result->type->func = inner;
+	}
+	if(IS_TAB(result->type))
+	{
+		result->type->tab->elem->func = inner;
+	}
+	if(IS_FUNC(result->type))
+	{
+		result->type->func->ret->func = inner;
+	}
+
 }
 
 void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
- {
-     printf("op %s:%d\n", arg2, cur_depth); 
+{
+	printf("op %s:%d\n", arg2, cur_depth); 
 
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;

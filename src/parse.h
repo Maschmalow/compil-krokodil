@@ -8,5 +8,6 @@
 
 extern int cur_depth;   
 extern var_lmap* cur_vars;
+extern var_s* pending_map;
 
 #endif
