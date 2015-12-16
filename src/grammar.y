@@ -125,7 +125,7 @@ declaration //var_s*
 : type_name declarator ';'{ $$ = $2;
                                         assign_deepest($$->type, $1);
                                         printf("1:%d\n", cur_depth);
-                                        hash_add(cur_vars, $$);
+                                        hash_add_l(cur_vars, $$);
                                         free_var_map(pending_map);
                                         }
                                 
@@ -133,7 +133,7 @@ declaration //var_s*
                                                     $$->flags |= VAR_EXTERN;                                      
                                                     assign_deepest($$->type, $2);
                                                     printf("2:%d\n", cur_depth);
-                                                    hash_add(cur_vars, $$);
+                                                    hash_add_l(cur_vars, $$);
                                                     free_var_map(pending_map);
                                                     }
 

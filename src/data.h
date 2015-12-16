@@ -47,11 +47,12 @@ struct var_s {
 #define VAR_EXTERN 1
 
 
-void hash_add(var_lmap* head, const var_s* item);
-void hash_add(var_s** head, const var_s* item);
+void hash_add_l(var_lmap* head, const var_s* item);
 var_s* hash_find(var_lmap* head, char* key);
 void add_all(var_lmap* dst, const var_s* src) ;
 
+
+void hash_add(var_s** head, const var_s* item);
 void  clear_var_map(var_s** map);
 void  free_var_map(var_s** map);
 

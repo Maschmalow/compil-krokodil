@@ -5,14 +5,9 @@
 #include "data.h"
 
 
-void hash_add(var_lmap* head, const var_s* item)
+void hash_add_l(var_lmap* head, const var_s* item)
 {
     hash_add(&(head->map), item);
-}
-
-void hash_add(var_s** head, const var_s* item)
-{
-    HASH_ADD_KEYPTR(hh, head, item->s_id, strlen(item->s_id), item );
 }
 
 var_s* hash_find(var_lmap* head, char* key)
@@ -25,9 +20,14 @@ var_s* hash_find(var_lmap* head, char* key)
 void add_all(var_lmap* dst, const var_s* src) 
 {
     for(var_s* cur_var = src; cur_var != NULL; cur_var = cur_var->hh.next) {
-        hash_add(dst, cur_var);    
+        hash_add_l(dst, cur_var);    
     } 
 } 
+
+void hash_add(var_s** head, const var_s* item)
+{
+    HASH_ADD_KEYPTR(hh, head, item->s_id, strlen(item->s_id), item );
+}
 
 void  clear_var_map(var_s** map)
 {
