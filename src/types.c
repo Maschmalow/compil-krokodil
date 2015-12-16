@@ -59,6 +59,16 @@ type_s* new_empty_type_s()
 }
 
 
+type_f* new_empty_type_f()
+{
+    type_s* ret = malloc(sizeof(*ret));
+	memset(ret, 0, sizeof(*ret));
+    ret->ret = new_empty_type_s();
+    
+	return ret;	    
+}
+
+
 void copy_type_s(type_s* t1, const type_s* t2)
 {
     t1->prim = t2->prim;

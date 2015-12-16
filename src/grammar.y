@@ -13,6 +13,8 @@
 
 
     int new_reg();
+    void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2);
+    void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2);
     void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
     
 
@@ -140,10 +142,10 @@ type_name
 declarator
 : IDENTIFIER {  $$ = new_empty_var_s(); $$->s_id = $1; }
 | '(' declarator ')' { $$ = $2;  }
-| declarator '[' CONSTANTI ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = $3; $$->s_id = strdup($1->s_id); $$->type->tab->elem = $1->type; }
-| declarator '[' ']' {$$ = new_empty_var_s(); ALLOC($$->type->tab); $$->type->tab->size = 0; $$->s_id = strdup($1->s_id); $$->type->tab->elem = $1->type; }
-| declarator '(' parameter_list ')' {printf("22:%d\n", cur_depth); $$ = new_empty_var_s(); $$->s_id = strdup($1->s_id); $$->type->func = $3; }
-| declarator '(' ')' { $$ = new_empty_var_s(); ALLOC($$->type->func); $$->s_id = strdup($1->s_id); $$->type->func->nb_param =0; $$->type->func->params = NULL; $$->s_id = strdup($1->s_id); free_var_s($1); }
+| declarator '[' CONSTANTI ']' { declarator_tab_semantics(&$$, $1, $3); }
+| declarator '[' ']' { declarator_tab_semantics(&$$, $1, 0); }
+| declarator '(' parameter_list ')' { declarator_func_semantics(&$$, $1, $3); }
+| declarator '(' ')' { declarator_func_semantics(&$$, $1, new_empty_type_f()); }
 ;
 
 parameter_list
@@ -225,6 +227,25 @@ extern FILE *yyin;
 
 char *file_name = NULL;
 
+void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2)
+{
+    *resultp = new_empty_var_s();
+    var_s* result = *resultp;
+    result->s_id = strdup(arg1->s_id);
+    ALLOC(result->type->tab);
+    result->type->tab->size = arg2;
+    copy_type_s(result->type->tab->elem, arg1->type);
+    free_var_s(arg1);
+}
+
+void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2)
+{
+     *resultp = new_empty_var_s();
+     var_s* result = *resultp;
+     resultp->s_id = strdup(arg1->s_id);
+     resultp->type->func = arg2; 
+     free_var_s(arg1);
+}
 
 void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
  {
