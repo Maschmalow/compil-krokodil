@@ -47,15 +47,22 @@ struct var_s {
 #define VAR_EXTERN 1
 
 
-void hash_add(var_lmap* head, var_s* item);
+void hash_add(var_lmap* head, const var_s* item);
+void hash_add(var_s** head, const var_s* item);
 var_s* hash_find(var_lmap* head, char* key);
+void add_all(var_lmap* dst, const var_s* src) ;
+
+void  clear_var_map(var_s** map);
+void  free_var_map(var_s** map);
 
 var_lmap* new_var_lmap(var_s* map, int depth, var_lmap* up);
-expr_s* new_empty_expr_s();
 var_s* new_empty_var_s();
+expr_s* new_empty_expr_s();
 
 void  free_var_lmap(var_lmap* v);
 void free_expr_s(expr_s* t);
 void free_var_s(var_s* f);
+
+
 
 #endif
