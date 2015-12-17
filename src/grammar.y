@@ -15,6 +15,9 @@
 	var_s* pending_map = EMPTY_MAP;
 
     int new_reg();
+    int new_label(const char* prefix);
+    void add_line(char** ll_c, const char* in_fmt, ...);
+    
     void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2);
     void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2);
     void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
@@ -211,7 +214,7 @@ statement
 ;
 
 compound_statement
-: '{' '}'  { $$ = strdup("\0"); }
+: '{' '}'  { $$ = strdup("\n"); }
 | '{' statement_list '}' { $$ = $2; }
 | '{' declaration_list statement_list '}' { asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
 ;
@@ -227,8 +230,8 @@ statement_list
 ;
 
 expression_statement
-: ';' { $$ = strdup("\0"); }
-| expression ';' { $$ = $1; }
+: ';' { $$ = strdup("\n"); }
+| expression ';' { $$ = strdup($1->ll_c); free_expr_s($1); }
 ;
 
 selection_statement
@@ -429,7 +432,7 @@ void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, 
     expr_s* inter;
     expr_s* arg1_cp = new_empty_expr_s();
     arg1_cp->reg = arg1->reg;
-    arg1_cp->ll_c = strdup("\0");
+    arg1_cp->ll_c = strdup("\n");
     copy_type_s(arg1_cp->type, arg1->type);
     
     binary_op_semantics(&inter,  arg1, arg2,  arg3);
