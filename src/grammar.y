@@ -280,18 +280,13 @@ void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2)
 	type_t* inner = new_empty_type_t();
 	inner->size = arg2;
 	
-	if(IS_PRIMARY(result->type)) 
-	{
-		result->type->tab = inner;
-	}
+
 	if(IS_TAB(result->type))
-	{
 		result->type->tab->elem->tab = inner;
-	}
 	if(IS_FUNC(result->type))
-	{
 		result->type->func->ret->tab = inner;
-	}
+	else
+        result->type->tab = inner;
 	
     
 }
@@ -302,18 +297,12 @@ void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2)
 	var_s* result = *resultp;
 	type_f* inner = arg2;
 	
-	if(IS_PRIMARY(result->type)) 
-	{
-		result->type->func = inner;
-	}
 	if(IS_TAB(result->type))
-	{
 		result->type->tab->elem->func = inner;
-	}
 	if(IS_FUNC(result->type))
-	{
 		result->type->func->ret->func = inner;
-	}
+	else
+        result->type->func = inner;
 
 }
 
