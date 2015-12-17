@@ -12,7 +12,7 @@ void hash_add_l(var_lmap* head, var_s* item)
 
 var_s* hash_find(var_lmap* head, char* key)
 {
-    var_s* ret;
+    var_s** ret;
     HASH_FIND(hh, head->map, key, strlen(key), ret);
     return ret;
 }
