@@ -352,7 +352,7 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;
-	result->reg = new_reg(/* id bloc, depth? */);
+	result->reg = new_reg();
 
 	
 	result->type->prim = CHAR_T;
@@ -377,11 +377,11 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 
 void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
 {
-	printf("op %s:%d\n", arg2, cur_depth); 
+	printf("cmp %s:%d\n", arg2, cur_depth); 
 
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;
-	result->reg = new_reg(/* id bloc, depth? */);
+	result->reg = new_reg();
 	
 	result->type->prim = INT_T;
     
@@ -421,7 +421,7 @@ void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 	char* tmp = ll_type(result->type);
     add_line(&(result->ll_c), arg1->ll_c);
     add_line(&(result->ll_c), arg3->ll_c);
-	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d\n", arg1->ll_c, arg3->ll_c, tmp, arg1->reg, tmp, arg3->reg/*addr*/);
+	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d\n", tmp, arg1->reg, tmp, arg3->reg/*addr*/);
     puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
