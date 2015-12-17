@@ -17,6 +17,9 @@
     void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2);
     void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2);
     void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
+    void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
+    void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3);
+    void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
     
 
 %}
@@ -67,7 +70,7 @@ primary_expression
 | IDENTIFIER '(' ')'  { $$ = new_empty_expr_s();
                                 var_s* var;
                                 for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
-                                copy_type_s($$->type,  var->type->func>ret); 
+                                copy_type_s($$->type,  var->type->func->ret); 
                                 free($1);}
 | IDENTIFIER '(' argument_expression_list ')' { $$ = new_empty_expr_s();
                                                                     var_s* var;
@@ -94,14 +97,14 @@ postfix_expression
 : primary_expression { $$ = $1; }
 | postfix_expression '[' expression ']' {
                                                          $$ = new_empty_expr_s();
-                                                         copy_type_s($$->type, $1->tab->elem);
+                                                         copy_type_s($$->type, $1->type->tab->elem);
                                                          
                                                          free_expr_s($1); free_expr_s($3); }
 ;
 
 argument_expression_list
 : expression {  NALLOC($$, 2); $$[0] = $1; $$[1] = NULL;}
-| argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[i] != NULL) size++; $$ = realloc($$, size+1); $$[size-1] = $3; $$[size] = NULL}
+| argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[size] != NULL) size++; $$ = realloc($$, size+1); $$[size-1] = $3; $$[size] = NULL}
 ;
 
 unary_expression
