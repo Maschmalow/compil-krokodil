@@ -298,7 +298,7 @@ void add_line(char** ll_c, const char* in_fmt, ...)
     memset(ident, ' ', 2*cur_depth+1);
        
     char* fmt;
-    char* result;
+    char* result = NULL;
     asprintf(&fmt, "%s%s", ident, in_fmt);
     
     __builtin_va_list __local_argv;
