@@ -228,7 +228,7 @@ statement_list
 
 expression_statement
 : ';' { $$ = strdup("\0"); }
-| expression ';' { $$ = $1 }
+| expression ';' { $$ = $1; }
 ;
 
 selection_statement
@@ -244,12 +244,12 @@ iteration_statement
                                                         add_line(&$$, "%s:\n%s\n", cond, $3->ll_c );
                                                         add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n\n", $3->reg, body, end); // ! convert to i1
                                                         
-                                                        add_line(&$$, "%s:\n%s\n", body, $5->ll_c);
+                                                        add_line(&$$, "%s:\n%s\n", body, $5);
                                                         add_line(&$$, "br label %%%s\n\n", cond);
                                                         
                                                         add_line(&$$, "%s:", end);
                                                         free(cond); free(body); free(end);
-                                                        free_expr_s($3); free_expr_s($5);} 
+                                                        free_expr_s($3); free($5);} 
 | DO statement WHILE '(' expression ')' { asprintf(&$$, ""); }
 ;
 
