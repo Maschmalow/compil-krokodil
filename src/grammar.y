@@ -51,7 +51,7 @@
 primary_expression
 : IDENTIFIER { $$ = new_empty_expr_s();
 				var_s* var;
-				for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1)) != NULL; cur = cur->up);
+				for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1)) !== NULL; cur = cur->up);
 				copy_type_s($$->type,  var->type); }
 | CONSTANTI 
 | CONSTANTF 
