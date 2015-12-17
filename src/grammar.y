@@ -306,8 +306,12 @@ void add_line(char** ll_c, const char* in_fmt, ...)
     vasprintf( &result, fmt, __local_argv );
     __builtin_va_end( __local_argv );
     
-    *ll_c = realloc(*ll_c, ((*ll_c == NULL)? 0 : strlen(*ll_c)) + strlen(result) +1);
-    strcat(*ll_c, result);
+    char ll_c_is_null = *ll_c == NULL;
+    *ll_c = realloc(*ll_c, ((ll_c_is_null)? 0 : strlen(*ll_c)) + strlen(result) +1);
+    if(ll_c_is_null)
+        strcpy(*ll_c, result)
+    else
+        strcat(*ll_c, result);
     
     free(ident); free(fmt); free(result);
 }
