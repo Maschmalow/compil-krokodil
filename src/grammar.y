@@ -309,7 +309,7 @@ void add_line(char** ll_c, const char* in_fmt, ...)
     char ll_c_is_null = *ll_c == NULL;
     *ll_c = realloc(*ll_c, ((ll_c_is_null)? 0 : strlen(*ll_c)) + strlen(result) +1);
     if(ll_c_is_null)
-        strcpy(*ll_c, result)
+        strcpy(*ll_c, result);
     else
         strcat(*ll_c, result);
     
