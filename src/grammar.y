@@ -15,7 +15,7 @@
 	var_s* pending_map = EMPTY_MAP;
 
     int new_reg();
-    int new_label(const char* prefix);
+    char* new_label(const char* prefix);
     void add_line(char** ll_c, const char* in_fmt, ...);
     
     void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2);
@@ -443,8 +443,18 @@ void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, 
 int new_reg() //a faire 
 {
     //reg 0 <=> no reg
-	static int curReg =1;
-	return curReg++;
+	static int cur_reg =1;
+	return cur_reg++;
+}
+
+char* new_label(const char* prefix)
+{
+    static int cur_count = 0;
+    char* ret = NULL;
+    asprintf(&ret, "%s%d", prefix, cur_count);
+    cur_count++;
+    
+    return ret;
 }
 	
 int yyerror (char *s) {
