@@ -163,7 +163,7 @@ declaration //ll_c
                                         hash_add_l(cur_vars, $2);
                                         free_var_map(&pending_map);
                                         
-                                        asprintf(&$$, "");
+                                          
                                         }
                                 
 | EXTERN type_name declarator ';'{ 
@@ -172,7 +172,7 @@ declaration //ll_c
                                                     hash_add_l(cur_vars, $3);
                                                     free_var_map(&pending_map);
                                                     
-                                                    asprintf(&$$, "");
+                                                      
                                                     }
 
 
@@ -235,9 +235,9 @@ expression_statement
 ;
 
 selection_statement
-: IF '(' expression ')' statement { asprintf(&$$, "");}
-| IF '(' expression ')' statement ELSE statement {asprintf(&$$, ""); }
-| FOR '(' expression_statement expression_statement expression ')' statement {asprintf(&$$, ""); }
+: IF '(' expression ')' statement {   }
+| IF '(' expression ')' statement ELSE statement {   }
+| FOR '(' expression_statement expression_statement expression ')' statement {   }
 ;
 
 iteration_statement
@@ -253,7 +253,7 @@ iteration_statement
                                                         add_line(&$$, "%s:", end);
                                                         free(cond); free(body); free(end);
                                                         free_expr_s($3); free($5);} 
-| DO statement WHILE '(' expression ')' { asprintf(&$$, ""); }
+| DO statement WHILE '(' expression ')' {    }
 ;
 
 jump_statement
@@ -277,7 +277,7 @@ function_definition
                                                                     printf("13:%d\n", cur_depth);
                                                                     hash_add_l(cur_vars, $2);
                                                                     
-                                                                    asprintf(&$$, "");
+                                                                      
                                                                    }
 ;
 
@@ -292,29 +292,7 @@ extern FILE *yyin;
 
 char *file_name = NULL;
 
-void add_line(char** ll_c, const char* in_fmt, ...) 
-{
-    char* ident = malloc((2*cur_depth+1)*sizeof(*ident));
-    memset(ident, ' ', 2*cur_depth+1);
-       
-    char* fmt;
-    char* result = NULL;
-    asprintf(&fmt, "%s%s", ident, in_fmt);
-    
-    __builtin_va_list __local_argv;
-    __builtin_va_start( __local_argv, in_fmt );
-    vasprintf( &result, fmt, __local_argv );
-    __builtin_va_end( __local_argv );
-    
-    char ll_c_is_null = *ll_c == NULL;
-    *ll_c = realloc(*ll_c, ((ll_c_is_null)? 0 : strlen(*ll_c)) + strlen(result) +1);
-    if(ll_c_is_null)
-        strcpy(*ll_c, result);
-    else
-        strcat(*ll_c, result);
-    
-    free(ident); free(fmt); free(result);
-}
+
 
 
 void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2)
@@ -352,7 +330,7 @@ void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2)
 
 void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
 {
-	printf("op %s:%d, (%d)\n", arg2, cur_depth, (int) (*resultp)); 
+	printf("op %s:%d\n", arg2, cur_depth); 
 
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;
@@ -444,6 +422,29 @@ void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, 
     assignement_semantics(resultp, arg1_cp, inter);
 }
 
+void add_line(char** ll_c, const char* in_fmt, ...) 
+{
+    char* ident = malloc((2*cur_depth+1)*sizeof(*ident));
+    memset(ident, ' ', 2*cur_depth+1);
+       
+    char* fmt;
+    char* result = NULL;
+    asprintf(&fmt, "%s%s", ident, in_fmt);
+    
+    __builtin_va_list __local_argv;
+    __builtin_va_start( __local_argv, in_fmt );
+    vasprintf( &result, fmt, __local_argv );
+    __builtin_va_end( __local_argv );
+    
+    char ll_c_is_null = *ll_c == NULL;
+    *ll_c = realloc(*ll_c, ((ll_c_is_null)? 0 : strlen(*ll_c)) + strlen(result) +1);
+    if(ll_c_is_null)
+        strcpy(*ll_c, result);
+    else
+        strcat(*ll_c, result);
+    
+    free(ident); free(fmt); free(result);
+}
 
 int new_reg() //a faire 
 {
