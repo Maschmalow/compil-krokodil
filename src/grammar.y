@@ -257,8 +257,8 @@ iteration_statement
 ;
 
 jump_statement
-: RETURN ';' { asprintf(&$$, "ret void\n", );}
-| RETURN expression ';' {char* e_type = ll_code($2>type); asprintf(&$$, "ret %s %%%d;\n", e_type, $2->reg ); free(e_type);}
+: RETURN ';' { $$ = strdup("ret void\n");}
+| RETURN expression ';' {char* e_type = ll_type($2->type); asprintf(&$$, "ret %s %%%d;\n", e_type, $2->reg ); free(e_type);}
 ;
 
 program
@@ -297,7 +297,8 @@ void add_line(char** ll_c, const char* in_fmt, ...)
     char* ident = malloc((2*cur_depth+1)*sizeof(*ident));
     memset(ident, ' ', 2*cur_depth+1);
        
-    char* fmt, result;
+    char* fmt;
+    char* result;
     asprintf(&fmt, "%s%s", ident, in_fmt);
     
     __builtin_va_list __local_argv;
@@ -305,7 +306,7 @@ void add_line(char** ll_c, const char* in_fmt, ...)
     vasprintf( &result, fmt, __local_argv );
     __builtin_va_end( __local_argv );
     
-    *ll_c = rellaoc(*ll_c, ((*ll_c == NULL)? 0 : strlen(*ll_c)) + strlen(result) +1);
+    *ll_c = realloc(*ll_c, ((*ll_c == NULL)? 0 : strlen(*ll_c)) + strlen(result) +1);
     strcat(*ll_c, result);
     
     free(ident); free(fmt); free(result);
