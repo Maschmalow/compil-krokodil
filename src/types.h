@@ -16,7 +16,7 @@ typedef struct type_t type_t;
 
 
 typedef int type_p;
-#define NONE_T ((type_p) 0)
+#define NONE_T ((type_p) 0) //special value assigned when type is not primary
 #define VOID_T ((type_p) 1)
 #define INT_T ((type_p) 2)
 #define FLOAT_T ((type_p) 3)
@@ -24,8 +24,8 @@ typedef int type_p;
 
 struct type_s {
   type_p  prim;
-  type_t* tab;
-  type_f* func;
+  type_t* tab; //NULL if type is not tab
+  type_f* func; //NULL if type is not func
 };
 
 
@@ -36,7 +36,7 @@ struct type_t {
 
 struct type_f {
   type_s* ret;
-  type_s** params;
+  type_s** params; //always NULL when no param
   int nb_param;
 };
 
@@ -44,11 +44,12 @@ struct type_f {
 char* ll_type(type_s* t);
 void assign_deepest(type_s* t, type_p p);
 
-type_s* new_empty_type_s();
-type_f* new_empty_type_f();
-type_t* new_empty_type_t();
+type_s* new_empty_type_s(); //not a type of any kind
+type_f* new_empty_type_f(); //no param, empty ret type
+type_t* new_empty_type_t(); //size 0, empty elem type
 
-//deep copies. pointer 1 won't be allocated and needs to be initialized
+//deep copies. pointer 1 won't be allocated and needs to be initialized, but its content will be overwritten
+// typically, t1 is new_empty_X()
 void copy_type_s(type_s* t1, const type_s* t2);
 void copy_type_t(type_t* t1, const type_t* t2);
 void copy_type_f(type_f* f1, const type_f* f2);

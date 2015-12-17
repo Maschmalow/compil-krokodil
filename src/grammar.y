@@ -26,18 +26,21 @@
 %token <n_val> CONSTANTI
 %token MAP REDUCE EXTERN
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP
-%token SUB_ASSIGN MUL_ASSIGN ADD_ASSIGN
+%token SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN ADD_ASSIGN
 %token INT FLOAT VOID CHAR
 %token IF ELSE WHILE RETURN FOR DO
 %type <t_prim_d> type_name
 %type <func_d> parameter_list
 %type <type_d> parameter_declaration
 %type <var_d> declarator declaration
-%type <expr_d> primary_expression postfix_expression argument_expression_list unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
+%type <expr_d_list> argument_expression_list
+%type <ll_code> statement compound_statement statement_list expression_statement selection_statement iteration_statement jump_statement
+%type <expr_d> primary_expression postfix_expression  unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
 %start program
 
 %union {
   char* s_id;
+  char* ll_code;
   int n_val;
   float f_val;
   type_s* type_d;
@@ -45,40 +48,67 @@
   type_f* func_d;
   var_s* var_d;
   expr_s* expr_d;
+  expr_s** expr_d_list;
 }
 %%
 
 primary_expression
 : IDENTIFIER { $$ = new_empty_expr_s();
-				var_s* var;
-				for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
-				copy_type_s($$->type,  var->type); }
-| CONSTANTI 
-| CONSTANTF 
+                        var_s* var;
+                        for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
+                        copy_type_s($$->type,  var->type); 
+                        free($1);}
+| CONSTANTI { $$ = new_empty_expr_s(); $$->type->prim = ($1 >= -128 && $1 <= 127)? CHAR_T : INT_T; }
+| CONSTANTF { $$ = new_empty_expr_s(); $$->type->prim = FLOAT_T; }
 | '(' expression ')' { $$ = $2; }
-| MAP '(' postfix_expression ',' postfix_expression ')'
+| MAP '(' postfix_expression ',' postfix_expression ')' 
 | REDUCE '(' postfix_expression ',' postfix_expression ')'
-| IDENTIFIER '(' ')'
-| IDENTIFIER '(' argument_expression_list ')'
-| IDENTIFIER INC_OP
-| IDENTIFIER DEC_OP
+
+| IDENTIFIER '(' ')'  { $$ = new_empty_expr_s();
+                                var_s* var;
+                                for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
+                                copy_type_s($$->type,  var->type->func>ret); 
+                                free($1);}
+| IDENTIFIER '(' argument_expression_list ')' { $$ = new_empty_expr_s();
+                                                                    var_s* var;
+                                                                    for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
+                                                                    copy_type_s($$->type,  var->type->func>ret);
+                                                                    
+                                                                    while(*$3 != NULL) { free($3); $3++; }
+                                                                    free($1);}
+                                                                    
+| IDENTIFIER INC_OP { $$ = new_empty_expr_s();
+                                    var_s* var;
+                                    for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
+                                    copy_type_s($$->type,  var->type); 
+                                    free($1);}
+                                
+| IDENTIFIER DEC_OP { $$ = new_empty_expr_s();
+                                    var_s* var;
+                                    for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
+                                    copy_type_s($$->type,  var->type); 
+                                    free($1);}
 ;
 
 postfix_expression
 : primary_expression { $$ = $1; }
-| postfix_expression '[' expression ']'
+| postfix_expression '[' expression ']' {
+                                                         $$ = new_empty_expr_s();
+                                                         copy_type_s($$->type, $1->tab->elem);
+                                                         
+                                                         free_expr_s($1); free_expr_s($2); }
 ;
 
 argument_expression_list
-: expression
-| argument_expression_list ',' expression
+: expression {  NALLOC($$, 2); $$[0] = $1; $$[1] = NULL;}
+| argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[i] != NULL) size++; $$ = realloc($$, size+1); $$[size-1] = $3; $$[size] = NULL}
 ;
 
 unary_expression
 : postfix_expression { $$ = $1; }
-| INC_OP unary_expression
-| DEC_OP unary_expression
-| unary_operator unary_expression
+| INC_OP unary_expression { $$ = $1; }
+| DEC_OP unary_expression { $$ = $1; }
+| unary_operator unary_expression { $$ = $1; }
 ;
 
 unary_operator
@@ -101,25 +131,24 @@ additive_expression
 
 comparison_expression
 : additive_expression { $$ = $1; }
-| additive_expression '<' additive_expression
-| additive_expression '>' additive_expression
-| additive_expression LE_OP additive_expression
-| additive_expression GE_OP additive_expression
-| additive_expression EQ_OP additive_expression
-| additive_expression NE_OP additive_expression
+| additive_expression '<' additive_expression { comparaison_semantics(&$$, $1, "lt", $3); }
+| additive_expression '>' additive_expression { comparaison_semantics(&$$, $1, "gt", $3); }
+| additive_expression LE_OP additive_expression { comparaison_semantics(&$$, $1, "le", $3); }
+| additive_expression GE_OP additive_expression { comparaison_semantics(&$$, $1, "ge", $3); }
+| additive_expression EQ_OP additive_expression { comparaison_semantics(&$$, $1, "eq", $3); }
+| additive_expression NE_OP additive_expression { comparaison_semantics(&$$, $1, "ne", $3); }
 ;
 
 expression
-: unary_expression assignment_operator comparison_expression
+: unary_expression '='                 comparison_expression { assignement_semantics(&$$, $1, $3); }
+| unary_expression SUB_ASSIGN comparison_expression { assignement_op_semantics(&$$, $1, "sub", $3); }
+| unary_expression ADD_ASSIGN comparison_expression { assignement_op_semantics(&$$, $1, "add", $3); }
+| unary_expression MUL_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "mul", $3); }
+| unary_expression DIV_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "div", $3); }
 | comparison_expression { $$ = $1; }
 ;
 
-assignment_operator
-: '='
-| MUL_ASSIGN
-| ADD_ASSIGN
-| SUB_ASSIGN
-;
+
 
 declaration //var_s*
 : type_name declarator ';'{ $$ = $2;
@@ -306,7 +335,67 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 	free_expr_s(arg3);
 	
 }
+
+void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
+{
+	printf("op %s:%d\n", arg2, cur_depth); 
+
+	*resultp = new_empty_expr_s();
+    expr_s* result = *resultp;
+	result->reg = new_reg(/* id bloc, depth? */);
+	
+	result->type->prim = INT_T;
+    
+    char op_type;
+    char cond_type[2] = {0};
+	if(arg1->type->prim == FLOAT_T || arg3->type->prim == FLOAT_T )  {
+        op_type = 'f';
+        cond_type[0] = 'o';
+    } else {
+        op_type = 'i';
+        if( arg2[0] != 'e' && arg2[0] != 'n')
+            cond_type[0] = 's';        
+    }
+		
+	char* tmp = ll_type(result->type);
+	asprintf(&(result->ll_c),"%s%s%%%d = %ccmp %s%s %s %%%d, %%%d\n", arg1->ll_c, arg3->ll_c, result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
+    puts(result->ll_c);
+	free(tmp);
+	free_expr_s(arg1);
+	free_expr_s(arg3);
+	
+}
  
+void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
+{
+	printf("ass :%d\n",  cur_depth); 
+
+	*resultp = new_empty_expr_s();
+    expr_s* result = *resultp;
+	result->reg = arg3->reg;
+	
+	copy_type_s(result->type, arg1->type);
+
+
+	char* tmp = ll_type(result->type);
+	asprintf(&(result->ll_c),"%s%sstore %s %%%d, %s* %%%d\n", arg1->ll_c, arg3->ll_c, tmp, arg1->reg, tmp, arg3->reg/*addr*/);
+    puts(result->ll_c);
+	free(tmp);
+	free_expr_s(arg1);
+	free_expr_s(arg3);
+}
+
+void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
+{
+    expr_s* inter;
+    expr_s* arg1_cp = new_empty_expr_s();
+    arg1_cp->reg = arg1->reg;
+    arg1_cp->ll_c = strdup("\0");
+    copy_type_s(arg1_cp->type, arg1->type);
+    
+    binary_op_semantics(&inter,  arg1, arg2,  arg3);
+    assignement_semantics(resultp, arg1_cp, inter);
+}
 
 
 int new_reg() //a faire 

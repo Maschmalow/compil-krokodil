@@ -35,6 +35,7 @@ L[a-zA-Z_]
 "+="		{ count(); return(ADD_ASSIGN); }
 "-="		{ count(); return(SUB_ASSIGN); }
 "*="		{ count(); return(MUL_ASSIGN); }
+"/="		{ count(); return(DIV_ASSIGN); }
 "++"		{ count(); return(INC_OP); }
 "--"		{ count(); return(DEC_OP); }
 "<="		{ count(); return(LE_OP); }

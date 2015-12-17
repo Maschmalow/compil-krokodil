@@ -60,6 +60,9 @@ var_lmap* new_var_lmap(var_s* map, int depth, var_lmap* up);
 var_s* new_empty_var_s();
 expr_s* new_empty_expr_s();
 
+//same as for types copies
+void copy_expr_s(expr_s* e1, const expr_s* e2);
+
 void  free_var_lmap(var_lmap* v);
 void free_expr_s(expr_s* t);
 void free_var_s(var_s* f);

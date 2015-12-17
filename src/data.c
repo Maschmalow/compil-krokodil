@@ -17,7 +17,7 @@ var_s* hash_find(var_lmap* head, char* key)
     return ret;
 }
 
-void hash_put_all(var_lmap* dst, var_s** src) 
+void hash_put_all(var_lmap* dst, var_s** src) // ! two item can't belong to the same map
 {
       var_s* cur, *tmp;
 
@@ -74,6 +74,13 @@ expr_s* new_empty_expr_s()
 	memset(ret, 0, sizeof(*ret));
 	ret->type = new_empty_type_s();
 	return ret;
+}
+
+void copy_expr_s(expr_s* e1, const expr_s* e2)
+{
+    e1->reg = e2->reg;
+    e1->ll_c = strdup(e2->ll_c);   
+    copy_type_s(e1->type, e2->type);
 }
 
 
