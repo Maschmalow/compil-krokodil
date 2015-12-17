@@ -108,9 +108,12 @@ unary_expression
 : postfix_expression { $$ = $1; }
 | INC_OP unary_expression { $$ = $2; }
 | DEC_OP unary_expression { $$ = $2; }
-| '-' unary_expression { $$ = $2; }
+| unary_operator unary_expression { $$ = $2; }
 ;
 
+unary_operator
+: '-'
+;
 
 
 
