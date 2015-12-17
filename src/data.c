@@ -17,11 +17,15 @@ var_s* hash_find(var_lmap* head, char* key)
     return ret;
 }
 
-void add_all(var_lmap* dst, var_s* src) 
+void hash_put_all(var_lmap* dst, var_s** src) 
 {
-    for(var_s* cur_var = src; cur_var != NULL; cur_var = cur_var->hh.next) {
-        hash_add_l(dst, cur_var);    
-    } 
+      var_s* cur, *tmp;
+
+    HASH_ITER(hh, *src, cur, tmp) {
+        HASH_DEL(*src, cur); 
+        hash_add_l(dst, cur);
+    }
+  
 } 
 
 void hash_add(var_s** head,  var_s* item)

@@ -11,7 +11,7 @@
     int yylex ();
     int yyerror ();
 
-	var_s* pending_map;
+	var_s* pending_map = EMPTY_MAP;
 
     int new_reg();
     void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2);
