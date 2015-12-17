@@ -365,8 +365,8 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 	}
 	
 	char* tmp = ll_type(result->type);
-    add_line(&(result->ll_c), arg1->ll_c);
-    add_line(&(result->ll_c), arg3->ll_c);
+    add_line(&(result->ll_c), "%s", arg1->ll_c);
+    add_line(&(result->ll_c), "%s", arg3->ll_c);
 	add_line(&(result->ll_c),"%%%d = %s%s %s %%%d, %%%d\n", result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
     puts(result->ll_c);
 	free(tmp);
@@ -397,8 +397,8 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
     }
 		
 	char* tmp = ll_type(result->type);
-    add_line(&(result->ll_c), arg1->ll_c);
-    add_line(&(result->ll_c), arg3->ll_c);
+    add_line(&(result->ll_c), "%s", arg1->ll_c);
+    add_line(&(result->ll_c), "%s", arg3->ll_c);
 	add_line(&(result->ll_c),"%%%d = %ccmp %s%s %s %%%d, %%%d\n", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
     puts(result->ll_c);
 	free(tmp);
@@ -419,8 +419,8 @@ void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 
 
 	char* tmp = ll_type(result->type);
-    add_line(&(result->ll_c), arg1->ll_c);
-    add_line(&(result->ll_c), arg3->ll_c);
+    add_line(&(result->ll_c), "%s", arg1->ll_c);
+    add_line(&(result->ll_c), "%s", arg3->ll_c);
 	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d\n", tmp, arg1->reg, tmp, arg3->reg/*addr*/);
     puts(result->ll_c);
 	free(tmp);
