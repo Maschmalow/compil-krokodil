@@ -24,6 +24,7 @@
     void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
     void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3);
     void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
+    void selection_semantics(char** resultp, char* _else, expr_s* cond, char* arg1, char* arg2);
     
 
 %}
@@ -235,22 +236,40 @@ expression_statement
 ;
 
 selection_statement
-: IF '(' expression ')' statement {   }
-| IF '(' expression ')' statement ELSE statement {   }
-| FOR '(' expression_statement expression_statement expression ')' statement {   }
+: IF '(' expression ')' statement { selection_semantics(&$$, new_label("if.end"), $3, $5, "\0");   }
+| IF '(' expression ')' statement ELSE statement {  selection_semantics(&$$, new_label("if.else"), $3, $5, $7); }
+
+| FOR '(' expression_statement expression_statement expression ')' statement 
+        {  char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
+            add_line(&$$, "%s", $3->ll_c);
+            add_line(&$$, "br label %%%s\n\n", cond);
+            
+            add_line(&$$, "%s:\n%s", cond, $4->ll_c );
+            add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n\n", $4->reg, body, end); // ! convert to i1
+            
+            add_line(&$$, "%s:\n%s", body, $7);
+            add_line(&$$, "br label %%%s\n\n", inc);
+            
+            add_line(&$$, "%s:\n%s", body, $5);
+            add_line(&$$, "br label %%%s\n\n", cond);
+            
+            add_line(&$$, "%s:\n", end);
+            free(cond); free(body); free(inc); free(end);
+            free_expr_s($3); free_expr_s($4); free_expr_s($5); free($7); } 
 ;
+
 
 iteration_statement
 : WHILE '(' expression ')' statement { char* cond = new_label("while.cond"); char* body = new_label("while.body"); char* end = new_label("while.end");
                                                         add_line(&$$, "br label %%%s\n\n", cond);
                                                         
-                                                        add_line(&$$, "%s:\n%s\n", cond, $3->ll_c );
+                                                        add_line(&$$, "%s:\n%s", cond, $3->ll_c );
                                                         add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n\n", $3->reg, body, end); // ! convert to i1
                                                         
-                                                        add_line(&$$, "%s:\n%s\n", body, $5);
+                                                        add_line(&$$, "%s:\n%s", body, $5);
                                                         add_line(&$$, "br label %%%s\n\n", cond);
                                                         
-                                                        add_line(&$$, "%s:", end);
+                                                        add_line(&$$, "%s:\n", end);
                                                         free(cond); free(body); free(end);
                                                         free_expr_s($3); free($5);} 
 | DO statement WHILE '(' expression ')' {    }
@@ -387,6 +406,24 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 	free_expr_s(arg1);
 	free_expr_s(arg3);
 	
+}
+
+void selection_semantics(char** resultp, char* _else, expr_s* cond, char* arg1, char* arg2)
+{ 
+    char* then = new_label("if.then"); char* end = new_label("if.end");
+    
+    add_line(resultp, "%s", cond->ll_c);
+    add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n\n", cond->reg, then, _else); // ! convert to i1
+
+    add_line(resultp, "%s:\n%s", then, arg1 );
+    add_line(resultp, "br label %%%s\n\n", end);                                                                         
+
+    add_line(resultp, "%s:\n%s", _else, arg2 );
+    add_line(resultp, "br label %%%s\n\n", end); 
+
+    add_line(resultp, "%s:\n", end);
+    free(then); free(_else);  free(end);
+    free_expr_s(cond); free(arg1); free(arg2); 
 }
  
 void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
