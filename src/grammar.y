@@ -105,7 +105,7 @@ postfix_expression
 
 argument_expression_list
 : expression {  NALLOC($$, 2); $$[0] = $1; $$[1] = NULL;}
-| argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[size] != NULL) size++; $$ = realloc($$, size+1); $$[size-1] = $3; $$[size] = NULL}
+| argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[size] != NULL) size++; $$ = realloc($$, size+1); $$[size-1] = $3; $$[size] = NULL;}
 ;
 
 unary_expression
@@ -212,13 +212,13 @@ statement
 
 compound_statement
 : '{' '}'  { $$ = strdup("\0"); }
-| '{' statement_list '}' { $$ = $2 }
+| '{' statement_list '}' { $$ = $2; }
 | '{' declaration_list statement_list '}' { asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
 ;
 
 declaration_list
 : declaration { $$ = $1;}
-| declaration_list declaration { asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
+| declaration_list declaration { asprintf(&$$, "%s%s", $1, $2); free($1); free($2);}
 ;
 
 statement_list
@@ -255,12 +255,12 @@ iteration_statement
 
 jump_statement
 : RETURN ';' { asprintf(&$$, "ret void\n", );}
-| RETURN expression ';' {char* e_type = ll_code($2>type); asprintf(&$$, "ret %s %%%d;\n", e_type, $1->reg ); free(e_type);}
+| RETURN expression ';' {char* e_type = ll_code($2>type); asprintf(&$$, "ret %s %%%d;\n", e_type, $2->reg ); free(e_type);}
 ;
 
 program
 : external_declaration { $$ = $1; }
-| program external_declaration { asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
+| program external_declaration { asprintf(&$$, "%s%s", $1, $2); free($1); free($2);}
 ;
 
 external_declaration
