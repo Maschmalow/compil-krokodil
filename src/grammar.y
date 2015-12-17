@@ -298,7 +298,7 @@ void add_line(char** ll_c, const char* in_fmt, ...)
     asprintf(&fmt, "%s%s", ident, in_fmt);
     
     __builtin_va_list __local_argv;
-    __builtin_va_start( __local_argv, fmt );
+    __builtin_va_start( __local_argv, in_fmt );
     vasprintf( &result, fmt, __local_argv );
     __builtin_va_end( __local_argv );
     
@@ -362,7 +362,7 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 	
 	char* tmp = ll_type(result->type);
     add_line(&(result->ll_c), arg1->ll_c);
-    add_line(&(result->ll_c), arg2->ll_c);
+    add_line(&(result->ll_c), arg3->ll_c);
 	add_line(&(result->ll_c),"%%%d = %s%s %s %%%d, %%%d\n", result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
     puts(result->ll_c);
 	free(tmp);
@@ -394,7 +394,7 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 		
 	char* tmp = ll_type(result->type);
     add_line(&(result->ll_c), arg1->ll_c);
-    add_line(&(result->ll_c), arg2->ll_c);
+    add_line(&(result->ll_c), arg3->ll_c);
 	add_line(&(result->ll_c),"%%%d = %ccmp %s%s %s %%%d, %%%d\n", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
     puts(result->ll_c);
 	free(tmp);
