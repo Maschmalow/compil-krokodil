@@ -96,7 +96,7 @@ postfix_expression
                                                          $$ = new_empty_expr_s();
                                                          copy_type_s($$->type, $1->tab->elem);
                                                          
-                                                         free_expr_s($1); free_expr_s($2); }
+                                                         free_expr_s($1); free_expr_s($3); }
 ;
 
 argument_expression_list
@@ -106,14 +106,11 @@ argument_expression_list
 
 unary_expression
 : postfix_expression { $$ = $1; }
-| INC_OP unary_expression { $$ = $1; }
-| DEC_OP unary_expression { $$ = $1; }
-| unary_operator unary_expression { $$ = $1; }
+| INC_OP unary_expression { $$ = $2; }
+| DEC_OP unary_expression { $$ = $2; }
+| '-' unary_expression { $$ = $2; }
 ;
 
-unary_operator
-: '-'
-;
 
 
 
