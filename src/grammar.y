@@ -300,6 +300,7 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 	
 	char* tmp = ll_type(result->type);
 	asprintf(&(result->ll_c),"%s%s%%%d = %s%s %s %%%d, %%%d\n", arg1->ll_c, arg3->ll_c, result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
+    puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
 	free_expr_s(arg3);
