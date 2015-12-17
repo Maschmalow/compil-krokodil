@@ -3,9 +3,10 @@
 
 #include "util.h"
 
-#define IS_PRIMARY(t) (t->prim != NONE_T)
-#define IS_TAB(t) (t->tab != NULL)
-#define IS_FUNC(t) (t->func != NULL)
+#define IS_PRIMARY(t) ((t)->prim != NONE_T)
+#define IS_TAB(t) ((t)->tab != NULL)
+#define IS_FUNC(t) ((t)->func != NULL)
+#define IS_EMPTY(t) ( !IS_PRIMARY(t) && !IS_FUNC(t) && IS_TAB(t) ) 
 
 struct type_s;
 struct type_f;

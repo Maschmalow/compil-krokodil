@@ -2,6 +2,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>    
+    #include <stdarg.h>
     #include "../lib/libut.h"
 
     #include "parse.h"
@@ -35,9 +36,9 @@
 %type <t_prim_d> type_name
 %type <func_d> parameter_list
 %type <type_d> parameter_declaration
-%type <var_d> declarator declaration
+%type <var_d> declarator 
 %type <expr_d_list> argument_expression_list
-%type <ll_code> statement compound_statement statement_list expression_statement selection_statement iteration_statement jump_statement declaration_list
+%type <ll_code> declaration program external_declaration statement compound_statement statement_list expression_statement selection_statement iteration_statement jump_statement declaration_list function_definition
 %type <expr_d> primary_expression postfix_expression  unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
 %start program
 
@@ -45,7 +46,7 @@
   char* s_id;
   char* ll_code;
   int n_val;
-  float f_val;
+  double f_val;
   type_s* type_d;
   type_p t_prim_d;
   type_f* func_d;
@@ -153,20 +154,22 @@ expression
 
 
 
-declaration //var_s*
-: type_name declarator ';'{ $$ = $2;
-                                        assign_deepest($$->type, $1);
-                                        printf("1:%d\n", cur_depth);
-                                        hash_add_l(cur_vars, $$);
+declaration //ll_c
+: type_name declarator ';'{ 
+                                        assign_deepest($2->type, $1);
+                                        hash_add_l(cur_vars, $2);
                                         free_var_map(&pending_map);
+                                        
+                                        asprintf(&$$, "");
                                         }
                                 
-| EXTERN type_name declarator ';'{ $$ = $3;
-                                                    $$->flags |= VAR_EXTERN;                                      
-                                                    assign_deepest($$->type, $2);
-                                                    printf("2:%d\n", cur_depth);
-                                                    hash_add_l(cur_vars, $$);
+| EXTERN type_name declarator ';'{ 
+                                                    $3->flags |= VAR_EXTERN;                                      
+                                                    assign_deepest($3->type, $2);
+                                                    hash_add_l(cur_vars, $3);
                                                     free_var_map(&pending_map);
+                                                    
+                                                    asprintf(&$$, "");
                                                     }
 
 
@@ -200,22 +203,22 @@ parameter_declaration //type_s*
 ;
 
 statement 
-: compound_statement {printf("3:%d\n", cur_depth);}
-| expression_statement {printf("4:%d\n", cur_depth);}
-| selection_statement {printf("5:%d\n", cur_depth);}
-| iteration_statement {printf("6:%d\n", cur_depth);}
-| jump_statement {printf("7:%d\n", cur_depth);}
+: compound_statement { $$ = $1; }
+| expression_statement { $$ = $1; }
+| selection_statement { $$ = $1; }
+| iteration_statement { $$ = $1; }
+| jump_statement { $$ = $1; }
 ;
 
 compound_statement
-: '{' '}'  {printf("8:%d\n", cur_depth);}
-| '{' statement_list '}' {printf("9:%d\n", cur_depth);}
-| '{' declaration_list statement_list '}' {printf("10:%d\n", cur_depth);}
+: '{' '}'  { $$ = strdup("\0"); }
+| '{' statement_list '}' { $$ = $2 }
+| '{' declaration_list statement_list '}' { asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
 ;
 
 declaration_list
-: declaration
-| declaration_list declaration
+: declaration { $$ = $1;}
+| declaration_list declaration { asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
 ;
 
 statement_list
@@ -224,34 +227,45 @@ statement_list
 ;
 
 expression_statement
-: ';'
-| expression ';'
+: ';' { $$ = strdup("\0"); }
+| expression ';' { $$ = $1 }
 ;
 
 selection_statement
-: IF '(' expression ')' statement {printf("17:%d\n", cur_depth);}
-| IF '(' expression ')' statement ELSE statement {printf("18:%d\n", cur_depth);}
-| FOR '(' expression_statement expression_statement expression ')' statement {printf("19:%d\n", cur_depth);}
+: IF '(' expression ')' statement { asprintf(&$$, "");}
+| IF '(' expression ')' statement ELSE statement {asprintf(&$$, ""); }
+| FOR '(' expression_statement expression_statement expression ')' statement {asprintf(&$$, ""); }
 ;
 
 iteration_statement
-: WHILE '(' expression ')' statement
-| DO statement WHILE '(' expression ')'
+: WHILE '(' expression ')' statement { char* cond = new_label("while.cond"); char* body = new_label("while.body"); char* end = new_label("while.end");
+                                                        add_line(&$$, "br label %%%s\n\n", cond);
+                                                        
+                                                        add_line(&$$, "%s:\n%s\n", cond, $3->ll_c );
+                                                        add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n\n", $3->reg, body, end); // ! convert to i1
+                                                        
+                                                        add_line(&$$, "%s:\n%s\n", body, $5->ll_c);
+                                                        add_line(&$$, "br label %%%s\n\n", cond);
+                                                        
+                                                        add_line(&$$, "%s:", end);
+                                                        free(cond); free(body); free(end);
+                                                        free_expr_s($3); free_expr_s($5);} 
+| DO statement WHILE '(' expression ')' { asprintf(&$$, ""); }
 ;
 
 jump_statement
-: RETURN ';' {printf("20:%d\n", cur_depth);}
-| RETURN expression ';' {printf("21:%d\n", cur_depth);}
+: RETURN ';' { asprintf(&$$, "ret void\n", );}
+| RETURN expression ';' {char* e_type = ll_code($2>type); asprintf(&$$, "ret %s %%%d;\n", e_type, $1->reg ); free(e_type);}
 ;
 
 program
-: external_declaration
-| program external_declaration {printf("14:%d\n", cur_depth);}
+: external_declaration { $$ = $1; }
+| program external_declaration { asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
 ;
 
 external_declaration
-: function_definition {printf("11:%d\n", cur_depth);}
-| declaration  {printf("12:%d\n", cur_depth);}
+: function_definition { $$ = $1; }
+| declaration  { $$ = $1; }
 ;
 
 function_definition
@@ -259,6 +273,8 @@ function_definition
                                                                     assign_deepest($2->type, $1);
                                                                     printf("13:%d\n", cur_depth);
                                                                     hash_add_l(cur_vars, $2);
+                                                                    
+                                                                    asprintf(&$$, "");
                                                                    }
 ;
 
@@ -272,6 +288,26 @@ extern int yylineno;
 extern FILE *yyin;
 
 char *file_name = NULL;
+
+void add_line(char** ll_c, const char* in_fmt, ...) 
+{
+    char* ident = malloc((2*cur_depth+1)*sizeof(*ident));
+    memset(ident, ' ', 2*cur_depth+1);
+       
+    char* fmt, result;
+    asprintf(&fmt, "%s%s", ident, in_fmt);
+    
+    __builtin_va_list __local_argv;
+    __builtin_va_start( __local_argv, fmt );
+    vasprintf( &result, fmt, __local_argv );
+    __builtin_va_end( __local_argv );
+    
+    *ll_c = rellaoc(*ll_c, ((*ll_c == NULL)? 0 : strlen(*ll_c)) + strlen(result) +1);
+    strcat(*ll_c, result);
+    
+    free(ident); free(fmt); free(result);
+}
+
 
 void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2)
 {
@@ -287,8 +323,7 @@ void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2)
 		result->type->func->ret->tab = inner;
 	else
         result->type->tab = inner;
-	
-    
+   
 }
 
 void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2)
@@ -306,13 +341,15 @@ void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2)
 
 }
 
+
 void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
 {
-	printf("op %s:%d\n", arg2, cur_depth); 
+	printf("op %s:%d, (%d)\n", arg2, cur_depth, (int) (*resultp)); 
 
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;
 	result->reg = new_reg(/* id bloc, depth? */);
+
 	
 	result->type->prim = CHAR_T;
 	if(arg1->type->prim == INT_T || arg3->type->prim == INT_T || *arg2 == 'm') result->type->prim = INT_T;
@@ -324,7 +361,9 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 	}
 	
 	char* tmp = ll_type(result->type);
-	asprintf(&(result->ll_c),"%s%s%%%d = %s%s %s %%%d, %%%d\n", arg1->ll_c, arg3->ll_c, result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
+    add_line(&(result->ll_c), arg1->ll_c);
+    add_line(&(result->ll_c), arg2->ll_c);
+	add_line(&(result->ll_c),"%%%d = %s%s %s %%%d, %%%d\n", result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
     puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
@@ -354,7 +393,9 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
     }
 		
 	char* tmp = ll_type(result->type);
-	asprintf(&(result->ll_c),"%s%s%%%d = %ccmp %s%s %s %%%d, %%%d\n", arg1->ll_c, arg3->ll_c, result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
+    add_line(&(result->ll_c), arg1->ll_c);
+    add_line(&(result->ll_c), arg2->ll_c);
+	add_line(&(result->ll_c),"%%%d = %ccmp %s%s %s %%%d, %%%d\n", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
     puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
@@ -374,7 +415,9 @@ void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 
 
 	char* tmp = ll_type(result->type);
-	asprintf(&(result->ll_c),"%s%sstore %s %%%d, %s* %%%d\n", arg1->ll_c, arg3->ll_c, tmp, arg1->reg, tmp, arg3->reg/*addr*/);
+    add_line(&(result->ll_c), arg1->ll_c);
+    add_line(&(result->ll_c), arg3->ll_c);
+	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d\n", arg1->ll_c, arg3->ll_c, tmp, arg1->reg, tmp, arg3->reg/*addr*/);
     puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
@@ -398,8 +441,7 @@ int new_reg() //a faire
 {
     //reg 0 <=> no reg
 	static int curReg =1;
-	curReg++;
-	return curReg;
+	return curReg++;
 }
 	
 int yyerror (char *s) {
