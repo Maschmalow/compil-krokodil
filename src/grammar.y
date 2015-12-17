@@ -37,7 +37,7 @@
 %type <type_d> parameter_declaration
 %type <var_d> declarator declaration
 %type <expr_d_list> argument_expression_list
-%type <ll_code> statement compound_statement statement_list expression_statement selection_statement iteration_statement jump_statement
+%type <ll_code> statement compound_statement statement_list expression_statement selection_statement iteration_statement jump_statement declaration_list
 %type <expr_d> primary_expression postfix_expression  unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
 %start program
 
@@ -255,7 +255,11 @@ external_declaration
 ;
 
 function_definition
-: type_name declarator compound_statement {printf("13:%d\n", cur_depth);}
+: type_name declarator compound_statement {
+                                                                    assign_deepest($2->type, $1);
+                                                                    printf("13:%d\n", cur_depth);
+                                                                    hash_add_l(cur_vars, $2);
+                                                                   }
 ;
 
 %%
