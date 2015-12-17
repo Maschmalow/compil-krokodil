@@ -75,7 +75,7 @@ primary_expression
 | IDENTIFIER '(' argument_expression_list ')' { $$ = new_empty_expr_s();
                                                                     var_s* var;
                                                                     for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
-                                                                    copy_type_s($$->type,  var->type->func>ret);
+                                                                    copy_type_s($$->type,  var->type->func->ret);
                                                                     
                                                                     while(*$3 != NULL) { free($3); $3++; }
                                                                     free($1);}
