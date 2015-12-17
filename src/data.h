@@ -49,7 +49,7 @@ struct var_s {
 
 void hash_add_l(var_lmap* head, var_s* item);
 var_s* hash_find(var_lmap* head, char* key);
-void add_all(var_lmap* dst, var_s* src) ;
+void hash_put_all(var_lmap* dst, var_s** src) ;
 
 
 void hash_add(var_s** head, var_s* item);
