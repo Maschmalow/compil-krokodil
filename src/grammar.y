@@ -469,7 +469,7 @@ int add_ll_c(char** ll_c, const char* fmt, ...)
 {
     
     __builtin_va_list __local_argv;
-    __builtin_va_start( __local_argv, in_fmt );
+    __builtin_va_start( __local_argv, fmt );
     int ret = va_add_ll_c( ll_c, fmt, __local_argv );
     __builtin_va_end( __local_argv );
     
@@ -490,7 +490,7 @@ int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args)
     }
     else
     {
-        *ll_c = realloc(*ll_c, strlen(*ll_c)) + strlen(result) +1);
+        *ll_c = realloc(*ll_c, strlen(*ll_c) + strlen(result) +1);
         strcat(ll_c, result);
         free(result);        
     }
