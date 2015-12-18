@@ -46,7 +46,7 @@
 %type <expr_d_list> argument_expression_list
 %type <ll_code> declaration program external_declaration statement compound_statement statement_list selection_statement iteration_statement jump_statement declaration_list function_definition
 %type <expr_d> primary_expression postfix_expression  unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression expression_statement
-%start program 
+%start start 
 
 %union {
   char* s_id;
@@ -295,8 +295,11 @@ jump_statement
 
 program
 : external_declaration { $$ = $1; }
-| program external_declaration { $$ = NULL; add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2); puts($$); puts("\n\n\n\n");}
+| program external_declaration { $$ = NULL; add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2); }
 ;
+
+start
+: program { puts($1); }
 
 external_declaration
 : function_definition { $$ = $1; }
