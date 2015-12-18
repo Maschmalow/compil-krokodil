@@ -67,6 +67,8 @@ primary_expression
                         var_s* var;
                         for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                         copy_type_s($$->type,  var->type); 
+                        
+                        
                         free($1);}
 | CONSTANTI { $$ = new_empty_expr_s(); $$->type->prim = ($1 >= -128 && $1 <= 127)? CHAR_T : INT_T; }
 | CONSTANTF { $$ = new_empty_expr_s(); $$->type->prim = FLOAT_T; }
@@ -166,7 +168,8 @@ declaration //ll_c
                                         hash_add_l(cur_vars, $2);
                                         free_var_map(&pending_map);
                                         
-                                          
+                                        char* tmp = ll_type($2->type);
+                                        add_line(&$$, "decl: %s %s (%%%d)", tmp, $2->s_id, $2->reg);
                                         }
                                 
 | EXTERN type_name declarator ';'{ 
@@ -175,7 +178,7 @@ declaration //ll_c
                                                     hash_add_l(cur_vars, $3);
                                                     free_var_map(&pending_map);
                                                     
-                                                      
+                                                      add_line(&$$, "decl: extern %s %s (%%%d)", tmp, $2->s_id, $2->reg);
                                                     }
 
 
@@ -288,7 +291,7 @@ jump_statement
 
 program
 : external_declaration { $$ = $1; }
-| program external_declaration { asprintf(&$$, "%s%s", $1, $2); free($1); free($2);}
+| program external_declaration { add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2);}
 ;
 
 external_declaration
@@ -302,7 +305,8 @@ function_definition
                                                                     printf("13:%d\n", cur_depth);
                                                                     hash_add_l(cur_vars, $2);
                                                                     
-                                                                      
+                                                                    add_line(&$$, "func_def");
+                                                                    add_ll_c(&$$, "%s", $3);
                                                                    }
 ;
 
