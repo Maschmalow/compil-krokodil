@@ -246,26 +246,6 @@ expression_statement
 selection_statement
 : IF '(' expression ')' statement { selection_semantics(&$$, $3, $5, strdup("\n"));   }
 | IF '(' expression ')' statement ELSE statement {  selection_semantics(&$$, $3, $5, $7); }
-;
-
-
-iteration_statement
-: WHILE '(' expression ')' statement { $$ = NULL;
-                                                        char* cond = new_label("while.cond"); char* body = new_label("while.body"); char* end = new_label("while.end");
-                                                        add_line(&$$, "br label %%%s\n", cond);
-                                                        
-                                                        add_line(&$$, "%s:", cond );
-                                                        add_ll_c(&$$, "%s", $3->ll_c);
-                                                        add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n", $3->reg, body, end); // ! convert to i1
-                                                        
-                                                        add_line(&$$, "%s:", body);
-                                                        add_ll_c(&$$, "%s", $5);
-                                                        add_line(&$$, "br label %%%s\n", cond);
-                                                        
-                                                        add_line(&$$, "%s:", end);
-                                                        free(cond); free(body); free(end);
-                                                        free_expr_s($3); free($5);} 
-| DO statement WHILE '(' expression ')' {    }
 | FOR '(' expression_statement expression expression_statement ')' statement { $$ = NULL;
             char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
             add_ll_c(&$$, "%s", $3);
@@ -286,6 +266,26 @@ iteration_statement
             add_line(&$$, "%s:", end);
             free(cond); free(body); free(inc); free(end);
             free($3); free_expr_s($4); free($5); free($7); } 
+;
+
+
+iteration_statement
+: WHILE '(' expression ')' statement { $$ = NULL;
+                                                        char* cond = new_label("while.cond"); char* body = new_label("while.body"); char* end = new_label("while.end");
+                                                        add_line(&$$, "br label %%%s\n", cond);
+                                                        
+                                                        add_line(&$$, "%s:", cond );
+                                                        add_ll_c(&$$, "%s", $3->ll_c);
+                                                        add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n", $3->reg, body, end); // ! convert to i1
+                                                        
+                                                        add_line(&$$, "%s:", body);
+                                                        add_ll_c(&$$, "%s", $5);
+                                                        add_line(&$$, "br label %%%s\n", cond);
+                                                        
+                                                        add_line(&$$, "%s:", end);
+                                                        free(cond); free(body); free(end);
+                                                        free_expr_s($3); free($5);} 
+| DO statement WHILE '(' expression ')' {    }
 ;
 
 jump_statement
