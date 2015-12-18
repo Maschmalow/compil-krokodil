@@ -179,8 +179,8 @@ declaration //ll_c
                                                     hash_add_l(cur_vars, $3);
                                                     free_var_map(&pending_map);
                                                     
-                                                    char* tmp = ll_type($2->type);
-                                                    add_line(&$$, "decl: extern %s %s (%%%d)", tmp, $2->s_id, $2->addr_reg);
+                                                    char* tmp = ll_type($3->type);
+                                                    add_line(&$$, "decl: extern %s %s (%%%d)", tmp, $3->s_id, $3->addr_reg);
                                                     free(tmp);
                                                     }
 
