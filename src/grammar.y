@@ -511,7 +511,7 @@ int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args)
 int add_line(char** ll_c, const char* in_fmt, ...) 
 {
     char* ident = malloc((2*cur_depth+1)*sizeof(*ident));
-    memset(ident, ' ', 2*cur_depth+1);
+    memset(ident, ' ', 2*cur_depth); ident[2*cur_depth] = 0;
        
     char* fmt = NULL;
     asprintf(&fmt, "%s%s\n", ident, in_fmt);
