@@ -1,9 +1,9 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#define ALLOC(x) x = malloc(sizeof(*(x)))
-#define NALLOC(x, n) x = malloc((n)*sizeof(*(x)))
-
+#define ALLOC(x) (x) = malloc(sizeof(*(x)))
+#define NALLOC(x, n) (x) = malloc((n)*sizeof(*(x)))
+#deinfe REALLOC(x, n) (x) = realloc((x), (n)*sizeof(*(x)))
 
 int new_reg();
 char* new_label(const char* prefix);

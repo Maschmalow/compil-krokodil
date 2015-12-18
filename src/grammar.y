@@ -101,7 +101,7 @@ postfix_expression
 
 argument_expression_list
 : expression {  NALLOC($$, 2); $$[0] = $1; $$[1] = NULL;}
-| argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[size] != NULL) size++; $$ = realloc($$, size+1); $$[size-1] = $3; $$[size] = NULL;}
+| argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[size] != NULL) size++; REALLOC($$, size+1); $$[size-1] = $3; $$[size] = NULL;}
 ;
 
 unary_expression
@@ -191,7 +191,7 @@ declarator  //var_s*
 
 parameter_list  //type_f*
 : parameter_declaration { $$ = new_empty_type_f(); ALLOC($$->params); $$->nb_param = 1;  $$->params[0] = $1;}
-| parameter_list ',' parameter_declaration {$$ = $1; $$->params = realloc($$->params, $$->nb_param+1); $$->params[$$->nb_param] = $3; $$->nb_param++;  }
+| parameter_list ',' parameter_declaration {$$ = $1; REALLOC($$->params, $$->nb_param+1); $$->params[$$->nb_param] = $3; $$->nb_param++;  }
 ;
 
 parameter_declaration //type_s*
@@ -313,7 +313,7 @@ int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args)
     }
     else
     {
-        *ll_c = realloc(*ll_c, strlen(*ll_c) + strlen(result) +1);
+        REALLOC(*ll_c, strlen(*ll_c) + strlen(result) +1);
         strcat(*ll_c, result);
         free(result);
     }
