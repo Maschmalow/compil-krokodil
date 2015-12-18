@@ -24,7 +24,7 @@
     void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
     void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3);
     void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
-    void selection_semantics(char** resultp, char* _else, expr_s* cond, char* arg1, char* arg2);
+    void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
     
 
 %}
@@ -236,48 +236,52 @@ expression_statement
 ;
 
 selection_statement
-: IF '(' expression ')' statement { selection_semantics(&$$, new_label("if.end"), $3, $5, "\0");   }
-| IF '(' expression ')' statement ELSE statement {  selection_semantics(&$$, new_label("if.else"), $3, $5, $7); }
-
-| FOR '(' expression_statement expression_statement expression ')' statement 
-        {  char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
-            add_line(&$$, "%s", $3->ll_c);
-            add_line(&$$, "br label %%%s\n\n", cond);
-            
-            add_line(&$$, "%s:\n%s", cond, $4->ll_c );
-            add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n\n", $4->reg, body, end); // ! convert to i1
-            
-            add_line(&$$, "%s:\n%s", body, $7);
-            add_line(&$$, "br label %%%s\n\n", inc);
-            
-            add_line(&$$, "%s:\n%s", body, $5);
-            add_line(&$$, "br label %%%s\n\n", cond);
-            
-            add_line(&$$, "%s:\n", end);
-            free(cond); free(body); free(inc); free(end);
-            free_expr_s($3); free_expr_s($4); free_expr_s($5); free($7); } 
+: IF '(' expression ')' statement { selection_semantics(&$$, $3, $5, strdup("\n"));   }
+| IF '(' expression ')' statement ELSE statement {  selection_semantics(&$$, $3, $5, $7); }
 ;
 
 
 iteration_statement
 : WHILE '(' expression ')' statement { char* cond = new_label("while.cond"); char* body = new_label("while.body"); char* end = new_label("while.end");
-                                                        add_line(&$$, "br label %%%s\n\n", cond);
+                                                        add_line(&$$, "br label %%%s\n", cond);
                                                         
-                                                        add_line(&$$, "%s:\n%s", cond, $3->ll_c );
-                                                        add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n\n", $3->reg, body, end); // ! convert to i1
+                                                        add_line(&$$, "%s:", cond );
+                                                        add_ll_c(&$$, "%s", $3->ll_c);
+                                                        add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n", $3->reg, body, end); // ! convert to i1
                                                         
-                                                        add_line(&$$, "%s:\n%s", body, $5);
-                                                        add_line(&$$, "br label %%%s\n\n", cond);
+                                                        add_line(&$$, "%s:", body);
+                                                        add_ll_c(&$$, "%s", $5);
+                                                        add_line(&$$, "br label %%%s\n", cond);
                                                         
-                                                        add_line(&$$, "%s:\n", end);
+                                                        add_line(&$$, "%s:", end);
                                                         free(cond); free(body); free(end);
                                                         free_expr_s($3); free($5);} 
 | DO statement WHILE '(' expression ')' {    }
+| FOR '(' expression_statement expression expression_statement ')' statement 
+        {  char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
+            add_ll_c(&$$, "%s", $3);
+            add_line(&$$, "br label %%%s\n", cond);
+            
+            add_line(&$$, "%s:", cond, $4->ll_c );
+            add_ll_c(&$$, "%s", $4->ll_c);
+            add_line(&$$, "br i1 %%%d, label %%%s, label %%%s\n", $4->reg, body, end); // ! convert to i1
+            
+            add_line(&$$, "%s:", body);
+            add_ll_c(&$$, "%s", $7);
+            add_line(&$$, "br label %%%s\n", inc);
+            
+            add_line(&$$, "%s:", body);
+            add_ll_c(&$$, "%s", $5);
+            add_line(&$$, "br label %%%s\n", cond);
+            
+            add_line(&$$, "%s:", end);
+            free(cond); free(body); free(inc); free(end);
+            free($3); free_expr_s($4); free($5); free($7); } 
 ;
 
 jump_statement
-: RETURN ';' { $$ = strdup("ret void\n");}
-| RETURN expression ';' {char* e_type = ll_type($2->type); asprintf(&$$, "ret %s %%%d;\n", e_type, $2->reg ); free(e_type);}
+: RETURN ';' { add_line(&$$, "ret void\n"); }
+| RETURN expression ';' {char* e_type = ll_type($2->type);  add_line(&$$, "ret %s %%%d;\n", e_type, $2->reg ); free(e_type);}
 ;
 
 program
@@ -366,9 +370,8 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 	}
 	
 	char* tmp = ll_type(result->type);
-    add_line(&(result->ll_c), "%s", arg1->ll_c);
-    add_line(&(result->ll_c), "%s", arg3->ll_c);
-	add_line(&(result->ll_c),"%%%d = %s%s %s %%%d, %%%d\n", result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
+    add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
+	add_line(&(result->ll_c),"%%%d = %s%s %s %%%d, %%%d", result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
     puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
@@ -398,9 +401,8 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
     }
 		
 	char* tmp = ll_type(result->type);
-    add_line(&(result->ll_c), "%s", arg1->ll_c);
-    add_line(&(result->ll_c), "%s", arg3->ll_c);
-	add_line(&(result->ll_c),"%%%d = %ccmp %s%s %s %%%d, %%%d\n", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
+    add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
+	add_line(&(result->ll_c),"%%%d = %ccmp %s%s %s %%%d, %%%d", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
     puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
@@ -408,20 +410,22 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 	
 }
 
-void selection_semantics(char** resultp, char* _else, expr_s* cond, char* arg1, char* arg2)
+void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
 { 
-    char* then = new_label("if.then"); char* end = new_label("if.end");
+    char* then = new_label("if.then"); char* _else = new_label("if.else"); char* end = new_label("if.end");
     
-    add_line(resultp, "%s", cond->ll_c);
-    add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n\n", cond->reg, then, _else); // ! convert to i1
+    add_ll_c(resultp, "%s", cond->ll_c);
+    add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n", cond->reg, then, _else); // ! convert to i1
 
-    add_line(resultp, "%s:\n%s", then, arg1 );
-    add_line(resultp, "br label %%%s\n\n", end);                                                                         
+    add_line(resultp, "%s:", then); 
+    add_ll_c(resultp, "%s", arg1);
+    add_line(resultp, "br label %%%s\n", end);                                                                         
 
-    add_line(resultp, "%s:\n%s", _else, arg2 );
-    add_line(resultp, "br label %%%s\n\n", end); 
+    add_line(resultp, "%s:", _else ); 
+    add_ll_c(resultp, "%s", arg2);
+    add_line(resultp, "br label %%%s\n", end); 
 
-    add_line(resultp, "%s:\n", end);
+    add_line(resultp, "%s:", end);
     free(then); free(_else);  free(end);
     free_expr_s(cond); free(arg1); free(arg2); 
 }
@@ -438,9 +442,8 @@ void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 
 
 	char* tmp = ll_type(result->type);
-    add_line(&(result->ll_c), "%s", arg1->ll_c);
-    add_line(&(result->ll_c), "%s", arg3->ll_c);
-	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d\n", tmp, arg1->reg, tmp, arg3->reg/*addr*/);
+    add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
+	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d", tmp, arg1->reg, tmp, arg3->reg/*addr*/);
     puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
@@ -459,28 +462,59 @@ void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, 
     assignement_semantics(resultp, arg1_cp, inter);
 }
 
-void add_line(char** ll_c, const char* in_fmt, ...) 
+
+int add_ll_c(char** ll_c, const char* fmt, ...) 
+{
+    
+    __builtin_va_list __local_argv;
+    __builtin_va_start( __local_argv, in_fmt );
+    int ret = va_add_ll_c( ll_c, fmt, __local_argv );
+    __builtin_va_end( __local_argv );
+    
+    return ret;
+}
+
+
+
+int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args) 
+{
+    char* result = NULL;
+    
+    int ret = vasprintf( &result, fmt, va_args );
+    
+    if(*ll_c == NULL) 
+    {
+        *ll_c = result;
+    }
+    else
+    {
+        *ll_c = realloc(*ll_c, strlen(*ll_c)) + strlen(result) +1);
+        strcat(ll_c, result);
+        free(result);        
+    }
+    
+    return ret;
+}
+
+
+int add_line(char** ll_c, const char* in_fmt, ...) 
 {
     char* ident = malloc((2*cur_depth+1)*sizeof(*ident));
     memset(ident, ' ', 2*cur_depth+1);
        
-    char* fmt;
-    char* result = NULL;
-    asprintf(&fmt, "%s%s", ident, in_fmt);
+       
+    asprintf(&fmt, "%s%s\n", ident, in_fmt);
+    
     
     __builtin_va_list __local_argv;
     __builtin_va_start( __local_argv, in_fmt );
-    vasprintf( &result, fmt, __local_argv );
+    int ret = va_add_ll_c( ll_c, fmt, __local_argv );
     __builtin_va_end( __local_argv );
     
-    char ll_c_is_null = *ll_c == NULL;
-    *ll_c = realloc(*ll_c, ((ll_c_is_null)? 0 : strlen(*ll_c)) + strlen(result) +1);
-    if(ll_c_is_null)
-        strcpy(*ll_c, result);
-    else
-        strcat(*ll_c, result);
+
+    free(ident); free(fmt); 
     
-    free(ident); free(fmt); free(result);
+    return ret;
 }
 
 int new_reg() //a faire 
