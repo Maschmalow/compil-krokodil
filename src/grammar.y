@@ -225,12 +225,12 @@ statement
 compound_statement
 : '{' '}'  { $$ = strdup("\n"); }
 | '{' statement_list '}' { $$ = $2; }
-| '{' declaration_list statement_list '}' { asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
+| '{' declaration_list statement_list '}' { $$ = NULL; asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
 ;
 
 declaration_list
 : declaration { $$ = $1;}
-| declaration_list declaration { asprintf(&$$, "%s%s", $1, $2); free($1); free($2);}
+| declaration_list declaration { $$ = NULL; asprintf(&$$, "%s%s", $1, $2); free($1); free($2);}
 ;
 
 statement_list
@@ -250,7 +250,8 @@ selection_statement
 
 
 iteration_statement
-: WHILE '(' expression ')' statement { char* cond = new_label("while.cond"); char* body = new_label("while.body"); char* end = new_label("while.end");
+: WHILE '(' expression ')' statement { $$ = NULL;
+                                                        char* cond = new_label("while.cond"); char* body = new_label("while.body"); char* end = new_label("while.end");
                                                         add_line(&$$, "br label %%%s\n", cond);
                                                         
                                                         add_line(&$$, "%s:", cond );
@@ -265,8 +266,8 @@ iteration_statement
                                                         free(cond); free(body); free(end);
                                                         free_expr_s($3); free($5);} 
 | DO statement WHILE '(' expression ')' {    }
-| FOR '(' expression_statement expression expression_statement ')' statement 
- {  char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
+| FOR '(' expression_statement expression expression_statement ')' statement { $$ = NULL;
+            char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
             add_ll_c(&$$, "%s", $3);
             add_line(&$$, "br label %%%s\n", cond);
             
@@ -288,13 +289,13 @@ iteration_statement
 ;
 
 jump_statement
-: RETURN ';' { add_line(&$$, "ret void\n"); }
-| RETURN expression ';' {char* e_type = ll_type($2->type);  add_line(&$$, "ret %s %%%d;\n", e_type, $2->reg ); free(e_type);}
+: RETURN ';' { $$ = NULL; add_line(&$$, "ret void\n"); }
+| RETURN expression ';' { $$ = NULL; char* e_type = ll_type($2->type);  add_line(&$$, "ret %s %%%d;\n", e_type, $2->reg ); free(e_type);}
 ;
 
 program
 : external_declaration { $$ = $1; }
-| program external_declaration { add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2);}
+| program external_declaration { $$ = NULL; add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2);}
 ;
 
 external_declaration
@@ -303,7 +304,7 @@ external_declaration
 ;
 
 function_definition
-: type_name declarator compound_statement {
+: type_name declarator compound_statement { $$ = NULL;
                                                                     assign_deepest($2->type, $1);
                                                                     printf("13:%d\n", cur_depth);
                                                                     hash_add_l(cur_vars, $2);
@@ -421,6 +422,7 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 
 void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
 { 
+    *resultp = NULL;
     char* then = new_label("if.then"); char* _else = new_label("if.else"); char* end = new_label("if.end");
     
     add_ll_c(resultp, "%s", cond->ll_c);
