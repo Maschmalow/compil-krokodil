@@ -163,7 +163,7 @@ expression
 
 
 declaration //ll_c
-: type_name declarator ';'{ 
+: type_name declarator ';'{ $$ = NULL;
                                         assign_deepest($2->type, $1);
                                         hash_add_l(cur_vars, $2);
                                         free_var_map(&pending_map);
@@ -173,7 +173,7 @@ declaration //ll_c
                                         free(tmp);
                                         }
                                 
-| EXTERN type_name declarator ';'{ 
+| EXTERN type_name declarator ';'{ $$ = NULL;
                                                     $3->flags |= VAR_EXTERN;                                      
                                                     assign_deepest($3->type, $2);
                                                     hash_add_l(cur_vars, $3);
