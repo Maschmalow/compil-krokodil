@@ -9,6 +9,7 @@ int main() {
   int i;
   int x;
   
-  for (i=0; i<1000; i++) A[i]=i;
+  for (i=0; i<1000; i++) 
+      A[i]=i;
   return x;
 }
