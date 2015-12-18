@@ -169,7 +169,8 @@ declaration //ll_c
                                         free_var_map(&pending_map);
                                         
                                         char* tmp = ll_type($2->type);
-                                        add_line(&$$, "decl: %s %s (%%%d)", tmp, $2->s_id, $2->reg);
+                                        add_line(&$$, "decl: %s %s (%%%d)", tmp, $2->s_id, $2->addr_reg);
+                                        free(tmp);
                                         }
                                 
 | EXTERN type_name declarator ';'{ 
@@ -178,7 +179,9 @@ declaration //ll_c
                                                     hash_add_l(cur_vars, $3);
                                                     free_var_map(&pending_map);
                                                     
-                                                      add_line(&$$, "decl: extern %s %s (%%%d)", tmp, $2->s_id, $2->reg);
+                                                    char* tmp = ll_type($2->type);
+                                                    add_line(&$$, "decl: extern %s %s (%%%d)", tmp, $2->s_id, $2->addr_reg);
+                                                    free(tmp);
                                                     }
 
 
