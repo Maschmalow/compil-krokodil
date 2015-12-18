@@ -295,7 +295,7 @@ jump_statement
 
 program
 : external_declaration { $$ = $1; }
-| program external_declaration { $$ = NULL; add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2);}
+| program external_declaration { $$ = NULL; add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2); puts($$); puts("\n\n\n\n");}
 ;
 
 external_declaration
@@ -382,7 +382,7 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
 	add_line(&(result->ll_c),"%%%d = %s%s %s %%%d, %%%d", result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
-    puts(result->ll_c);
+    //puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
 	free_expr_s(arg3);
@@ -413,7 +413,7 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
 	add_line(&(result->ll_c),"%%%d = %ccmp %s%s %s %%%d, %%%d", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
-    puts(result->ll_c);
+    //puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
 	free_expr_s(arg3);
