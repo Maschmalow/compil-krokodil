@@ -45,8 +45,8 @@
 %type <var_d> declarator 
 %type <expr_d_list> argument_expression_list
 %type <ll_code> declaration program external_declaration statement compound_statement statement_list selection_statement iteration_statement jump_statement declaration_list function_definition
-%type <expr_d> primary_expression postfix_expression  unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression
-%start program expression_statement
+%type <expr_d> primary_expression postfix_expression  unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression expression_statement
+%start program 
 
 %union {
   char* s_id;
