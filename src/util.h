@@ -5,4 +5,11 @@
 #define NALLOC(x, n) x = malloc((n)*sizeof(*(x)))
 
 
+int new_reg();
+char* new_label(const char* prefix);
+int add_ll_c(char** ll_c, const char* fmt, ...);
+int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args);
+int add_line(char** ll_c, const char* in_fmt, ...);
+        
+
 #endif

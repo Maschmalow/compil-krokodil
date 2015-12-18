@@ -15,12 +15,7 @@
 
 	var_s* pending_map = EMPTY_MAP;
 
-    int new_reg();
-    char* new_label(const char* prefix);
-    int add_ll_c(char** ll_c, const char* fmt, ...);
-    int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args);
-    int add_line(char** ll_c, const char* in_fmt, ...);
-        
+
 
 %}
 
@@ -243,7 +238,7 @@ selection_statement
 
 
 iteration_statement
-: WHILE '(' expression ')' statement { $$ = NULL; iteration_semantics(&$$, strdup("\n"), $3, strdup("\n"), $5);} 
+: WHILE '(' expression ')' statement { $$ = NULL; iteration_semantics(&$$, new_empty_expr_s(), $3, new_empty_expr_s(), $5);} 
 | DO statement WHILE '(' expression ')' {    }
 | FOR '(' expression_statement expression_statement  expression ')' statement { $$ = NULL; iteration_semantics(&$$, $3, $4, $5, $7);} 
 ;
@@ -261,7 +256,7 @@ program
 ;
 
 start
-: program { puts($1); }
+: program { puts($1); free($1);}
 
 external_declaration
 : function_definition { $$ = $1; }
@@ -312,7 +307,7 @@ int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args)
     
     int ret = vasprintf( &result, fmt, va_args );
     
-    if(*ll_c == NULL) 
+    if(*ll_c == NULL || **ll_c == 0) 
     {
         *ll_c = result;
     }
@@ -320,7 +315,7 @@ int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args)
     {
         *ll_c = realloc(*ll_c, strlen(*ll_c) + strlen(result) +1);
         strcat(*ll_c, result);
-        free(result);        
+        free(result);
     }
     
     return ret;
