@@ -2,8 +2,6 @@
 #define DATA_H
 
 
-#include "../lib/libut.h"
-
 #include "types.h"
 
 #define EMPTY_MAP ((var_s*) NULL)

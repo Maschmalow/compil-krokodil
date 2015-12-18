@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../lib/libut.h"
 
+#include "util.h"
 #include "data.h"
 
 
@@ -73,6 +75,8 @@ expr_s* new_empty_expr_s()
 	expr_s* ret = malloc(sizeof(*ret));
 	memset(ret, 0, sizeof(*ret));
 	ret->type = new_empty_type_s();
+    ALLOC(ret->ll_c);
+    ret->ll_c = 0;
 	return ret;
 }
 
