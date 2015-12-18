@@ -16,15 +16,17 @@
 
     int new_reg();
     char* new_label(const char* prefix);
-    void add_line(char** ll_c, const char* in_fmt, ...);
-    
+    int add_ll_c(char** ll_c, const char* fmt, ...);
+    int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args);
+    int add_line(char** ll_c, const char* in_fmt, ...);
+        
     void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2);
     void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2);
     void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
     void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
     void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3);
     void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3);
-    void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
+    void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2);
     
 
 %}
@@ -258,7 +260,7 @@ iteration_statement
                                                         free_expr_s($3); free($5);} 
 | DO statement WHILE '(' expression ')' {    }
 | FOR '(' expression_statement expression expression_statement ')' statement 
-        {  char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
+ {  char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
             add_ll_c(&$$, "%s", $3);
             add_line(&$$, "br label %%%s\n", cond);
             
