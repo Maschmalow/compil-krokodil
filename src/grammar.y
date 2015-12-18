@@ -225,17 +225,17 @@ statement
 compound_statement
 : '{' '}'  { $$ = strdup("\n"); }
 | '{' statement_list '}' { $$ = $2; }
-| '{' declaration_list statement_list '}' { $$ = NULL; asprintf(&$$, "%s%s", $2, $3); free($2); free($3);}
+| '{' declaration_list statement_list '}' { $$ = NULL; add_ll_c(&$$, "%s%s", $2, $3); free($2); free($3);}
 ;
 
 declaration_list
 : declaration { $$ = $1;}
-| declaration_list declaration { $$ = NULL; asprintf(&$$, "%s%s", $1, $2); free($1); free($2);}
+| declaration_list declaration { $$ = NULL; add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2);}
 ;
 
 statement_list
-: statement {printf("15:%d\n", cur_depth);}
-| statement_list statement {printf("16:%d\n", cur_depth);}
+: statement { $$ = $1; }
+| statement_list statement {  $$ = NULL; add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2); }
 ;
 
 expression_statement
@@ -289,8 +289,8 @@ iteration_statement
 ;
 
 jump_statement
-: RETURN ';' { $$ = NULL; add_line(&$$, "ret void\n"); }
-| RETURN expression ';' { $$ = NULL; char* e_type = ll_type($2->type);  add_line(&$$, "ret %s %%%d;\n", e_type, $2->reg ); free(e_type);}
+: RETURN ';' { $$ = NULL; add_line(&$$, "ret void"); }
+| RETURN expression ';' { $$ = NULL; char* e_type = ll_type($2->type);  add_line(&$$, "ret %s %%%d;", e_type, $2->reg ); free(e_type);}
 ;
 
 program
@@ -312,7 +312,7 @@ function_definition
                                                                     printf("13:%d\n", cur_depth);
                                                                     hash_add_l(cur_vars, $2);
                                                                     
-                                                                    add_line(&$$, "func_def");
+                                                                    add_line(&$$, "func_def  %s %s", $2->s_id, $2->type);
                                                                     add_ll_c(&$$, "%s", $3);
                                                                    }
 ;
@@ -458,7 +458,7 @@ void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
 	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d", tmp, arg1->reg, tmp, arg3->reg/*addr*/);
-    puts(result->ll_c);
+    //puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
 	free_expr_s(arg3);
