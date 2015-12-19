@@ -74,8 +74,8 @@ primary_expression
                                                                     for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                                                                     copy_type_s($$->type,  var->type->func->ret);
                                                                     
-                                                                    while(*$3 != NULL) { free($3); $3++; }
-                                                                    free($1);}
+                                                                    for(int i=0; $3[i] != NULL; i++)  free($3[i]);                                                                    
+                                                                    free($3); free($1); }
                                                                     
 | IDENTIFIER INC_OP { $$ = new_empty_expr_s();
                                     var_s* var;
@@ -99,7 +99,7 @@ postfix_expression
                                                          free_expr_s($1); free_expr_s($3); }
 ;
 
-argument_expression_list
+argument_expression_list //expr_s**
 : expression {  NALLOC($$, 2); $$[0] = $1; $$[1] = NULL;}
 | argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[size] != NULL) size++; REALLOC($$, size+1); $$[size-1] = $3; $$[size] = NULL;}
 ;
@@ -247,7 +247,11 @@ iteration_statement
 
 jump_statement
 : RETURN ';' { $$ = NULL; add_line(&$$, "ret void"); }
-| RETURN expression ';' { $$ = NULL; char* e_type = ll_type($2->type);  add_line(&$$, "ret %s %%%d", e_type, $2->reg ); free(e_type);}
+| RETURN expression ';' { $$ = NULL;  
+                                      add_ll_c(&$$, "%s", $2->code);
+                                      char* e_type = ll_type($2->type);
+                                      add_line(&$$, "ret %s %%%d", e_type, $2->reg );
+                                      free(e_type); free_expr_s($2);}
 ;
 
 program
