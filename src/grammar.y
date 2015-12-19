@@ -269,6 +269,7 @@ external_declaration
 
 function_definition
 : type_name declarator compound_statement { $$ = NULL;
+                                                                    if(cur_depth != 0) exit(EXIT_FAILURE);
                                                                     assign_deepest($2->type, $1);
                                                                     printf("13:%d\n", cur_depth);
                                                                     hash_add_l(cur_vars, $2);

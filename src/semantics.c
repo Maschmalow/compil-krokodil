@@ -187,7 +187,6 @@ void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, 
     expr_s* inter;
     expr_s* arg1_cp = new_empty_expr_s();
     arg1_cp->reg = arg1->reg;
-    arg1_cp->ll_c = strdup("\n");
     copy_type_s(arg1_cp->type, arg1->type);
     
     binary_op_semantics(&inter,  arg1, arg2,  arg3);
