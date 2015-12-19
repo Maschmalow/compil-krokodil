@@ -42,6 +42,7 @@ struct type_f { //struct that holds function type
   type_s** params; //always NULL when no param
   int nb_param;
 };
+//we make no distinction between function pointers and functions. functions are variables like others, with the distinction that we can call them.
 
 
 char* ll_type(type_s* t); //allocate a string which contain the llvm representation of a type

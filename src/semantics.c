@@ -55,7 +55,6 @@ void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2)
 //arithmetics. type conversion are made here
 void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
 {
-	printf("op %s:%d\n", arg2, cur_depth); 
 
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;
@@ -112,6 +111,44 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 	free_expr_s(arg3);
 	
 }
+
+
+void function_definition_semantics[char** resultp, type_p arg1, var_s* arg2, char* arg3)
+{
+    assign_deepest(arg2->type, arg11);
+    hash_add_l(cur_vars, arg2);
+    type_f* f = arg2->type->func;
+    
+        //stolen and adapted code from ll_type(). I know it's bad I plea guilty :(
+        int size;
+        char* fmt = NULL;
+        char* param = NULL;
+		char* ret_type = ll_type(f->ret);
+		asprintf(&fmt, "%s @%s(", ret_type, arg2->s_id);
+		free(ret_type); 
+		size = strlen(fmt) +1;
+		for(int i=0; i< f->nb_param; i++) 
+		{            
+			char* param_type = ll_type(f->params[i]);
+            asprintf(&param, "%s %%%s", param_type, "fuck"); // :( :( :(
+            free(param_type);
+			size += strlen(param) +2;
+			REALLOC(fmt, size);
+			strcat(fmt, param);
+			if(i != f->nb_param-1)
+				strcat(fmt, ", ");
+			free(param);
+		}
+		REALLOC(fmt, size +2);
+		strcat(fmt, " )");
+
+    add_line(&$$, "define %s {", fmt);
+    add_ll_c(&$$, "%s", arg3);
+    add_line(resultp, "}" );
+    
+    free(fmt); free(arg3);
+}
+
 
 //conditions and loops are mostly jumps and labels, with previous code inbetween
 //be careful to conversions to i1 for conditional jumps though
@@ -193,7 +230,7 @@ void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
-	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d", tmp, arg1->reg, tmp, arg3->reg/*addr*/);
+	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d", tmp, arg3->reg, tmp, arg1->reg/*addr*/);
     //puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);

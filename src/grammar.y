@@ -62,14 +62,22 @@
 
 primary_expression
 : IDENTIFIER { $$ = new_empty_expr_s();
+                        $$->reg = new_reg();
                         var_s* var;
                         for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                         copy_type_s($$->type,  var->type); 
                         
-                        
-                        free($1);}
-| CONSTANTI { $$ = new_empty_expr_s(); $$->type->prim = ($1 >= -128 && $1 <= 127)? CHAR_T : INT_T; }
-| CONSTANTF { $$ = new_empty_expr_s(); $$->type->prim = FLOAT_T; }
+                        char* var_type = ll_code($$->type);
+                        add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
+                        free(var_type); free($1);}
+| CONSTANTI { $$ = new_empty_expr_s(); $$->reg = new_reg(); $$->type->prim = ($1 >= -128 && $1 <= 127)? CHAR_T : INT_T; 
+                        char e_type = ll_code($$->type);
+                        add_line(&($$->ll_c), "%%%d = add %s 0, %d", $$->reg, e_type, $1);
+                        free(e_type);}
+| CONSTANTF { $$ = new_empty_expr_s(); $$->type->prim = FLOAT_T; 
+                        char e_type = ll_code($$->type);
+                        add_line(&($$->ll_c), "%%%d = fadd %s 0, %016lx", $$->reg, e_type, *((long int *)&$1)); 
+                        free(e_type);}
 | '(' expression ')' { $$ = $2; }
 | MAP '(' postfix_expression ',' postfix_expression ')'  { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);} 
 | REDUCE '(' postfix_expression ',' postfix_expression ')'   { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);}
@@ -79,13 +87,22 @@ primary_expression
                                 for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                                 copy_type_s($$->type,  var->type->func->ret); 
                                 free($1);}
-| IDENTIFIER '(' argument_expression_list ')' { $$ = new_empty_expr_s();
+| IDENTIFIER '(' argument_expression_list ')' { $$ = new_empty_expr_s(); 
                                                                     var_s* var;
                                                                     for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                                                                     copy_type_s($$->type,  var->type->func->ret);
                                                                     
+                                                                    
+                                                                    for(int i=0; $3[i] != NULL; i++) {
+                                                                        add_ll_c($3[i]);
+                                                                    }
+                                                                    char e_type = ll_code($$->type);
+                                                                    if($$->type->prim != VOID_T) {
+                                                                    //add_line("%%d = call %s
+                                                                    }
+                                                                    
                                                                     for(int i=0; $3[i] != NULL; i++)  free($3[i]);                                                                    
-                                                                    free($3); free($1); }
+                                                                    free($3); free($1); free(e_type);}
                                                                     
 | IDENTIFIER INC_OP { $$ = new_empty_expr_s();
                                     var_s* var;
@@ -163,23 +180,25 @@ expression
 declaration //ll_c
 : type_name declarator ';'{ $$ = NULL;
                                         assign_deepest($2->type, $1);
+                                        $2->addr_reg = new_reg();
                                         hash_add_l(cur_vars, $2);
                                         free_var_map(&pending_map);
                                         
-                                        char* tmp = ll_type($2->type);
-                                        add_line(&$$, "decl: %s %s (%%%d)", tmp, $2->s_id, $2->addr_reg);
-                                        free(tmp);
+                                        char* v_type = ll_type($2->type);
+                                        add_line(&$$, "%%%d = alloca %s  ;%s", $2->addr_reg, v_type, $2->s_id);
+                                        free(v_type);
                                         }
                                 
 | EXTERN type_name declarator ';'{ $$ = NULL;
                                                     $3->flags |= VAR_EXTERN;                                      
                                                     assign_deepest($3->type, $2);
+                                                    $2->addr_reg = new_reg();
                                                     hash_add_l(cur_vars, $3);
                                                     free_var_map(&pending_map);
                                                     
-                                                    char* tmp = ll_type($3->type);
-                                                    add_line(&$$, "decl: extern %s %s (%%%d)", tmp, $3->s_id, $3->addr_reg);
-                                                    free(tmp);
+                                                    char* v_type = ll_type($3->type);
+                                                    add_line(&$$, "@%d = external global %s  ;%s", $3->addr_reg, v_type, $3->s_id);
+                                                    free(v_type);
                                                     }
 
 
@@ -278,16 +297,7 @@ external_declaration
 ;
 
 function_definition
-: type_name declarator compound_statement { $$ = NULL;
-                                                                    assign_deepest($2->type, $1);
-                                                                    hash_add_l(cur_vars, $2);
-                                                                    
-                                                                    char* tmp = ll_type($2->type);
-                                                                    add_line(&$$, "func_def  %s %s", $2->s_id, tmp);
-                                                                    add_ll_c(&$$, "%s", $3);
-                                                                    free(tmp);
-                                                                    free($3);
-                                                                   }
+: type_name declarator compound_statement { $$ = NULL; function_definition_semantics(&$$, $1, $2, $3); }
 ;
 
 %%

@@ -32,13 +32,13 @@ char* ll_type(type_s* t) {
 		{
 			tmp = ll_type(t->func->params[i]);
 			size += strlen(tmp) +2;
-			ret = realloc(ret, size);
+			ret = realloc(ret, size*sizeof(*ret));
 			strcat(ret, tmp);
 			if(i != t->func->nb_param-1)
 				strcat(ret, ", ");
 			free(tmp);
 		}
-		ret = realloc(ret, size +2);
+		ret = realloc(ret, (size +2)*sizeof(*ret));
 		strcat(ret, " )");
 	}
 	return ret;
