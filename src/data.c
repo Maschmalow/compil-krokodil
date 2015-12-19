@@ -75,7 +75,7 @@ expr_s* new_empty_expr_s()
 	memset(ret, 0, sizeof(*ret));
 	ret->type = new_empty_type_s();
     ALLOC(ret->ll_c);
-    ret->ll_c = 0;
+    *ret->ll_c = 0;
 	return ret;
 }
 
