@@ -226,7 +226,7 @@ statement_list
 | statement_list statement {  $$ = NULL; add_ll_c(&$$, "%s%s", $1, $2); free($1); free($2); }
 ;
 
-expression_statement
+expression_statement //expr_s*
 : ';' { $$ = new_empty_expr_s(); $$->type->prim = VOID_T; }
 | expression ';' { $$ = $1; }
 ;
@@ -248,7 +248,7 @@ iteration_statement
 jump_statement
 : RETURN ';' { $$ = NULL; add_line(&$$, "ret void"); }
 | RETURN expression ';' { $$ = NULL;  
-                                      add_ll_c(&$$, "%s", $2->code);
+                                      add_ll_c(&$$, "%s", $2->ll_c);
                                       char* e_type = ll_type($2->type);
                                       add_line(&$$, "ret %s %%%d", e_type, $2->reg );
                                       free(e_type); free_expr_s($2);}
@@ -273,7 +273,7 @@ function_definition
                                                                     printf("13:%d\n", cur_depth);
                                                                     hash_add_l(cur_vars, $2);
                                                                     
-                                                                    char* tmp = ll_code($2->type);
+                                                                    char* tmp = ll_type($2->type);
                                                                     add_line(&$$, "func_def  %s %s", $2->s_id, tmp);
                                                                     add_ll_c(&$$, "%s", $3);
                                                                     free(tmp);
