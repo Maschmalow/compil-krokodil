@@ -33,7 +33,7 @@
 %type <var_d> declarator 
 %type <expr_d_list> argument_expression_list
 %type <ll_code> declaration program external_declaration statement compound_statement statement_list selection_statement iteration_statement jump_statement declaration_list function_definition
-%type <expr_d> primary_expression postfix_expression  unary_expression unary_operator multiplicative_expression additive_expression comparison_expression expression expression_statement
+%type <expr_d> primary_expression postfix_expression  unary_expression multiplicative_expression additive_expression comparison_expression expression expression_statement
 %start start 
 
 %union {
@@ -61,8 +61,8 @@ primary_expression
 | CONSTANTI { $$ = new_empty_expr_s(); $$->type->prim = ($1 >= -128 && $1 <= 127)? CHAR_T : INT_T; }
 | CONSTANTF { $$ = new_empty_expr_s(); $$->type->prim = FLOAT_T; }
 | '(' expression ')' { $$ = $2; }
-| MAP '(' postfix_expression ',' postfix_expression ')' 
-| REDUCE '(' postfix_expression ',' postfix_expression ')'
+| MAP '(' postfix_expression ',' postfix_expression ')'  { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);} 
+| REDUCE '(' postfix_expression ',' postfix_expression ')'   { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);}
 
 | IDENTIFIER '(' ')'  { $$ = new_empty_expr_s();
                                 var_s* var;
