@@ -1,6 +1,7 @@
 int main() {
   int A[1000];
-  int i,x;
+  int i;
+  int x;
   x=0;
   do 
     x++;
