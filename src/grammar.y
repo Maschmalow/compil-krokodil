@@ -239,7 +239,7 @@ selection_statement
 
 iteration_statement
 : WHILE '(' expression ')' statement { $$ = NULL; iteration_semantics(&$$, new_empty_expr_s(), $3, new_empty_expr_s(), $5);} 
-| DO statement WHILE '(' expression ')' {    }
+| DO statement WHILE '(' expression ')' { $$ = NULL; iteration_do_while_semantics(&$$,  $2,  $5);} 
 | FOR '(' expression_statement expression_statement  expression ')' statement { $$ = NULL; iteration_semantics(&$$, $3, $4, $5, $7);} 
 ;
 

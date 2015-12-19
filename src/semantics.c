@@ -105,7 +105,7 @@ void iteration_semantics(char** resultp, expr_s* arg1, expr_s* arg2, expr_s* arg
     add_ll_c(resultp, "%s", arg1->ll_c);
     add_line(resultp, "br label %%%s\n", cond);
 
-    add_line(resultp, "%s:", cond, arg2->ll_c );
+    add_line(resultp, "%s:", cond);
     add_ll_c(resultp, "%s", arg2->ll_c);
     add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n", arg2->reg, body, end); // ! convert to i1
 
@@ -121,6 +121,25 @@ void iteration_semantics(char** resultp, expr_s* arg1, expr_s* arg2, expr_s* arg
     free(cond); free(body); free(inc); free(end);
     free_expr_s(arg1); free_expr_s(arg2); free_expr_s(arg3); free(arg4); 
 } 
+
+void iteration_do_while_semantics(char** resultp, char* arg1, expr_s* arg2)
+{ 
+    char* cond = new_label("do.cond"); char* body = new_label("do.body"); char* end = new_label("do.end");
+    add_line(resultp, "br label %%%s\n", body);
+
+    add_line(resultp, "%s:", body );
+    add_ll_c(resultp, "%s", arg1);
+    add_line(resultp, "br label %%%s\n", cond); 
+
+    add_line(resultp, "%s:", cond);
+    add_ll_c(resultp, "%s", arg2->ll_c);
+    add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n", arg2->reg, body, end); // ! convert to i1
+
+    add_line(resultp, "%s:", end);
+    free(cond); free(body);  free(end);
+    free(arg1); free_expr_s(arg2); 
+} 
+
 
 void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
 { 
