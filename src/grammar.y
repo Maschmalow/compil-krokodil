@@ -269,8 +269,11 @@ function_definition
                                                                     printf("13:%d\n", cur_depth);
                                                                     hash_add_l(cur_vars, $2);
                                                                     
-                                                                    add_line(&$$, "func_def  %s %s", $2->s_id, $2->type);
+                                                                    char* tmp = ll_code($2->type);
+                                                                    add_line(&$$, "func_def  %s %s", $2->s_id, tmp);
                                                                     add_ll_c(&$$, "%s", $3);
+                                                                    free(tmp);
+                                                                    free($3);
                                                                    }
 ;
 
