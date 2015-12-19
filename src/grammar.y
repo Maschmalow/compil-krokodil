@@ -104,11 +104,16 @@ primary_expression
                                                                     for(int i=0; $3[i] != NULL; i++)  free($3[i]);                                                                    
                                                                     free($3); free($1); free(e_type);}
                                                                     
-| IDENTIFIER INC_OP { $$ = new_empty_expr_s();
+| IDENTIFIER INC_OP { $$ = new_empty_expr_s();  $$->reg = new_reg();
                                     var_s* var;
                                     for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                                     copy_type_s($$->type,  var->type); 
-                                    free($1);}
+                                    
+                                    char* var_type = ll_code($$->type);
+                                    add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
+                                    assignement_op_semantics(&$$, ,"add", );
+                                    add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
+                                    free(var_type); free($1);}
                                 
 | IDENTIFIER DEC_OP { $$ = new_empty_expr_s();
                                     var_s* var;
