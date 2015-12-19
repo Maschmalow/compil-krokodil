@@ -316,7 +316,7 @@ int va_add_ll_c(char** ll_c, const char* fmt, __builtin_va_list va_args)
     
     if(*ll_c == NULL || **ll_c == 0) 
     {
-        if(**ll_c == 0)
+        if(*ll_c != NULL && **ll_c == 0)
             free(*ll_c);
         *ll_c = result;
     }
