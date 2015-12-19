@@ -13,7 +13,13 @@
     int yylex ();
     int yyerror ();
 
+    //the problem is that hashmap are opened when the scanner reads '{'
+    //so during a function definition, the paraeters are not within the right hashmap
+    //to prevent this, there is a global hashmap, in which we add functions parameters
+    // when a function is defined, the content of this map is added to the current map
 	var_s* pending_map = EMPTY_MAP;
+    //the only issue  is that it does not currently allow functions as parameters 
+    //this could be solved by changing the grammar, with adding a second parameter_list token, with unnamed parameters only
 
 
 
@@ -49,6 +55,10 @@
   expr_s** expr_d_list;
 }
 %%
+
+//for each semantics:
+// $$ needs to be correctly set at the end of the semantic. All $n must be free'd (if they have been dynamically allocated), 
+// exception is if they are stored in a hashmap (for variables). then they will be free'd when the map will be destroyed, at the end of the statement. 
 
 primary_expression
 : IDENTIFIER { $$ = new_empty_expr_s();
@@ -99,7 +109,7 @@ postfix_expression
                                                          free_expr_s($1); free_expr_s($3); }
 ;
 
-argument_expression_list //expr_s**
+argument_expression_list //expr_s**, a NULL terminated list of expressions
 : expression {  NALLOC($$, 2); $$[0] = $1; $$[1] = NULL;}
 | argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[size] != NULL) size++; REALLOC($$, size+1); $$[size-1] = $3; $$[size] = NULL;}
 ;
@@ -269,9 +279,7 @@ external_declaration
 
 function_definition
 : type_name declarator compound_statement { $$ = NULL;
-                                                                    if(cur_depth != 0) exit(EXIT_FAILURE);
                                                                     assign_deepest($2->type, $1);
-                                                                    printf("13:%d\n", cur_depth);
                                                                     hash_add_l(cur_vars, $2);
                                                                     
                                                                     char* tmp = ll_type($2->type);

@@ -7,6 +7,18 @@
 #include "semantics.h"
 
 
+
+//declarators are tricky: 
+// the regular expression is 'IDENTIFIER{ []  |  () }*' 
+// eg. 'var()[][]'
+// the type is read from right to left: var is function the return a tab of tabs (aka 2-dimensional tab) 
+// but the grammar is declarator -> declarator[]
+// which mean that the parser actually read from left to right
+// 'declarator[size]' is not a tab with its elements defined by 'declarator', but its something that will, depending on 'declarator':
+//  - be a function that return a tab, ; if declarator is a fucntion
+//  - be a tab with tabs as elements ; if declarator is a tab ( careful here, the size of the tabs elements is the one in the semantic)
+//  - be a tab ^^ ; if declarator is primary
+//the point is : the result declarator is the given declarator, with the one built fro the semantics inside
 void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2)
 {
 	*resultp = arg1;
@@ -24,6 +36,7 @@ void declarator_tab_semantics(var_s** resultp, var_s* arg1, int arg2)
    
 }
 
+//same thing 
 void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2)
 {
 	*resultp = arg1;
@@ -39,7 +52,7 @@ void declarator_func_semantics(var_s** resultp, var_s* arg1, type_f* arg2)
 
 }
 
-
+//arithmetics. type conversion are made here
 void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
 {
 	printf("op %s:%d\n", arg2, cur_depth); 
@@ -68,6 +81,7 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 	
 }
 
+//meh, same.
 void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
 {
 	printf("cmp %s:%d\n", arg2, cur_depth); 
@@ -99,6 +113,8 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 	
 }
 
+//conditions and loops are mostly jumps and labels, with previous code inbetween
+//be careful to conversions to i1 for conditional jumps though
 void iteration_semantics(char** resultp, expr_s* arg1, expr_s* arg2, expr_s* arg3, char* arg4)
 { 
     char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
@@ -122,6 +138,7 @@ void iteration_semantics(char** resultp, expr_s* arg1, expr_s* arg2, expr_s* arg
     free_expr_s(arg1); free_expr_s(arg2); free_expr_s(arg3); free(arg4); 
 } 
 
+//same
 void iteration_do_while_semantics(char** resultp, char* arg1, expr_s* arg2)
 { 
     char* cond = new_label("do.cond"); char* body = new_label("do.body"); char* end = new_label("do.end");
@@ -140,7 +157,7 @@ void iteration_do_while_semantics(char** resultp, char* arg1, expr_s* arg2)
     free(arg1); free_expr_s(arg2); 
 } 
 
-
+//same
 void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
 { 
     *resultp = NULL;
@@ -162,6 +179,7 @@ void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
     free_expr_s(cond); free(arg1); free(arg2); 
 }
  
+ //
 void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 {
 	printf("ass :%d\n",  cur_depth); 
@@ -182,6 +200,7 @@ void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 	free_expr_s(arg3);
 }
 
+//
 void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
 {
     expr_s* inter;
