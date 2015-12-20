@@ -344,3 +344,16 @@ void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, 
     binary_op_semantics(&inter,  arg1, arg2,  arg3);
     assignement_semantics(resultp, arg1_cp, inter);
 }
+
+void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
+{
+     *resultp = new_empty_expr_s(); 
+    expr_s* result = *resultp;
+    var_s* var;
+    for(var_lmap* cur = cur_vars; (var = hash_find(cur, arg1))  == NULL; cur = cur->up);
+    copy_type_s(result->type,  var->type->func->ret);
+     
+     
+     
+    
+}
