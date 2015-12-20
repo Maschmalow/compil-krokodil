@@ -128,7 +128,7 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     free(ret_type);
     var_s* cur_param = cur_func_params;
     
-    for(int i=0; i< f->nb_param-1; i++) {
+    for(int i=0; i< f->nb_param; i++) {
         char* param_type = ll_type(f->params[i]);
         param_regs[i] = new_reg();
         add_ll_c(&def, "%s %%%d", param_type, param_regs[i]);
@@ -142,7 +142,7 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     
     add_line(resultp, "define %s {", def);
     cur_param = cur_func_params;
-    for(int i=0; i< f->nb_param-1; i++) {
+    for(int i=0; i< f->nb_param; i++) {
         
         char* param_type = ll_type(f->params[i]);
         add_line(resultp, "%%%d = alloca %s  ;%s", cur_param->addr_reg, param_type, cur_param->s_id);
