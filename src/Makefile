@@ -5,7 +5,7 @@ CC=gcc
 
 all:krokodil
 
-parse:grammar.c scanner.c semantics.c types.c data.c
+krokodil:grammar.c scanner.c semantics.c types.c data.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 grammar.c:grammar.y
@@ -13,7 +13,7 @@ grammar.c:grammar.y
 
 %.c:%.l
 	$(LEX) -o $@ $^
-    
+
 
 clean:
 	rm -f grammar.c scanner.c parse
