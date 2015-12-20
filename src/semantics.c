@@ -130,7 +130,7 @@ void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
     char* op = NULL;
     if( arg1->type->prim == CHAR_T || arg1->type->prim = INT_T) op = "sitofp";
     if( arg1->type->prim == FLOAT_T ) op = "fptosi";
-    
+
 
 	char* out_type = ll_type(result->type);
     char* in_type = ll_type(arg1->type);
@@ -148,35 +148,35 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     hash_add_l(cur_vars, arg2);
     type_f* f = arg2->type->func;
 
-    
+
     int* param_regs = NULL;
     if(f->nb_param != 0)  NALLOC(param_regs, f->nb_param);
     char* def = NULL;
     char* ret_type = ll_type(f->ret);
     add_ll_c(&def,  "%s @%s(", ret_type, arg2->s_id);
     free(ret_type);
-    
+
     for(int i=0; i< f->nb_param; i++) {
         char* param_type = ll_type(f->params[i]);
         param_regs[i] = new_reg();
         add_ll_c(&def, "%s %%%d", param_type, param_regs[i]);
         if(i != f->nb_param-1)
             add_ll_c(&def, ", ");
-        
-        free(param_type);        
+
+        free(param_type);
     }
     add_ll_c(&def, " )");
-    
+
     add_line(resultp, "define %s {", def);
     var_s* cur_param = *cur_func_params;
     for(int i=0; i< f->nb_param; i++) {
-        
+
         char* param_type = ll_type(f->params[i]);
         add_line(resultp, "  %%%d = alloca %s  ;%s", cur_param->addr_reg, param_type, cur_param->s_id);
         add_line(resultp, "  store %s %%%d, %s* %%%d", param_type, param_regs[i], param_type, cur_param->addr_reg);
-        
+
         cur_param = cur_param->hh_param.next;
-        free(param_type);        
+        free(param_type);
     }
     add_ll_c(resultp, "%s", arg3);
     add_line(resultp, "}\n\n" );
@@ -191,7 +191,7 @@ void identifier_semantics(expr_s** resultp, char* arg1)
     result->reg = new_reg();
     var_s* var;
     for(var_lmap* cur = cur_vars; (var = hash_find(cur, arg1))  == NULL; cur = cur->up);
-    copy_type_s(result->type,  var->type); 
+    copy_type_s(result->type,  var->type);
 
     char* var_type = ll_type(result->type);
     add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d  ;%s", result->reg, var_type, var_type, var->addr_reg, arg1);
@@ -200,25 +200,25 @@ void identifier_semantics(expr_s** resultp, char* arg1)
 
 void constant_semantics(expr_s** resultp, int n_val, double f_val, type_p t)
 {
-    *resultp = new_empty_expr_s(); 
+    *resultp = new_empty_expr_s();
     expr_s* result = *resultp;
     result->reg = new_reg();
-    result->type->prim = t; 
+    result->type->prim = t;
     char* e_type = ll_type(result->type);
-    
+
     if(t == FLOAT_T) {
-        add_line(&(result->ll_c), "%%%d = fadd %s 0, %016lx", result->reg, e_type, *((long int *)&f_val)); 
+        add_line(&(result->ll_c), "%%%d = fadd %s 0, %016lx", result->reg, e_type, *((long int *)&f_val));
 	}
     if(t == INT_T || t == CHAR_T)
-        add_line(&(result->ll_c), "%%%d = add %s 0, %d", result->reg, e_type, n_val); 
-    
+        add_line(&(result->ll_c), "%%%d = add %s 0, %d", result->reg, e_type, n_val);
+
     free(e_type);
 }
 
 
 void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
 {
-    *resultp = new_empty_expr_s(); 
+    *resultp = new_empty_expr_s();
     expr_s* result = *resultp;
     var_s* var;
     for(var_lmap* cur = cur_vars; (var = hash_find(cur, arg1))  == NULL; cur = cur->up);
@@ -235,9 +235,9 @@ void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
             add_ll_c(&params, ", ");
         free(param_type);
     }
-    
-   
-    
+
+
+
     char* e_type = ll_type(result->type);
     if(result->type->prim != VOID_T) {
         add_line(&(result->ll_c), "%%%d = call %s @%s(%s)", result->reg, e_type, var->s_id, params);
@@ -245,9 +245,9 @@ void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
         add_line(&(result->ll_c), "call %s @%s(%s)", e_type, var->s_id, params);
     }
 
-    for(int i=0; arg2[i] != NULL; i++)  free_expr_s(arg2[i]);                                                                    
+    for(int i=0; arg2[i] != NULL; i++)  free_expr_s(arg2[i]);
     free(arg2); free(arg1); free(e_type); free(params);
-    
+
 }
 
 //conditions and loops are mostly jumps and labels, with previous code inbetween
@@ -352,13 +352,28 @@ void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, 
 
 void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
 {
-     *resultp = new_empty_expr_s(); 
+     *resultp = new_empty_expr_s();
     expr_s* result = *resultp;
     var_s* var;
     for(var_lmap* cur = cur_vars; (var = hash_find(cur, arg1))  == NULL; cur = cur->up);
     copy_type_s(result->type,  var->type->func->ret);
-     
-     
-     
-    
+
+		char* var_type = ll_type(result->type);
+    add_line(&(result->ll_c), "%%%d = load %s** %%1, align 8", result->reg, var_type, var_type, var->addr_reg, arg1);
+	  add_line(&(result->ll_c), "%%%d = getelementptr inbounds 	%s %%2, i64 %d",result->reg,var_type, arg2);
+
+
+    free(var_type); free(arg1);
+		// struct var_s {
+		// 		char* s_id;  //key
+		//
+		// 		int addr_reg;
+		// 		int flags;
+		// 		type_s* type;
+		//
+		// 		UT_hash_handle hh; //for uthash
+		// 		UT_hash_handle hh_param; //it's not possible to have the same item in two maps, so we add this handle for the parameters map
+
+
+
 }
