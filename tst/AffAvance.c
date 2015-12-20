@@ -3,15 +3,15 @@
 int main()
 {
 
-  void (*)(char[], float) tab1[5]; //un tableau de 5 fonctions qui prennent un tableau de char et un float et qui ne renvoient rien.
+  void coucou(char a[], float b);
 
-    float (*f2)()[];
-    
-    char (*)(int[10])[50] tab[4]; //un tableau de 4 fonctions qui prennent un tableau de 10 int et qui renvoient un tableau de 50 char.
+    float ce()[];
+
+    char projet(int ooo[10]); //un tableau de 4 fonctions qui prennent un tableau de 10 int et qui renvoient un tableau de 50 char.
 
     float tabf[];
-    
-    char (*f)(int[10])[50];
+
+    char est_nul(int affu[10]);
 
     int x[20];
 
