@@ -13,15 +13,16 @@
     int yylex ();
     int yyerror ();
 
+    var_s *n1 = NULL, *n2 = NULL;
     //the problem is that hashmap are opened when the scanner reads '{'
     //so during a function definition, the paraeters are not within the right hashmap
     //to prevent this, there is a global hashmap, in which we add functions parameters
     // when a function is defined, the content of this map is added to the current map
-	var_s** pending_vars = EMPTY_MAP;
+	var_s** pending_vars = &n1;
     //the only issue  is that it does not currently allow functions as parameters 
     //this could be solved by changing the grammar, with adding a second parameter_list token, with unnamed parameters only
 
-    var_s** cur_func_params = EMPTY_MAP;
+    var_s** cur_func_params = &n2;
 
 %}
 
