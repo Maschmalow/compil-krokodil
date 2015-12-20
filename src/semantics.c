@@ -198,10 +198,12 @@ void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
 
     char* params = NULL;
     for(int i=0; arg2[i] != NULL; i++) {
+        char* param_type = ll_type(arg2[i]->type);
         add_ll_c(&(result->ll_c), "%s", arg2[i]->ll_c);
-        add_ll_c(&params, "%s %%%d");
+        add_ll_c(&params, "%s %%%d", param_type, arg2[i]->reg);
         if(arg2[i+1] != NULL)
             add_ll_c(&params, ", ");
+        free(param_type);
     }
     
    
