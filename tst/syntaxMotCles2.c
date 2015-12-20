@@ -1,31 +1,31 @@
 
 extern int var1;
 extern float var2[5];
-extern int (*func)(float)[15];
+extern int func(float var2[5])[15];
 
 
 
 int main()
 {
     int x;
-    char 
-    
+    char a;
+
     do
     {
         while(var1)
         {
             char b;
-          
+
             b = 'a';
-            
-        
+
+
         }
-            
+
     }while(0);
-    
+
     if(0)
         x = var1;
-    
+
     if(0)
     {
         float doelseif;
@@ -41,14 +41,14 @@ int main()
             if(-561)
                 x = 3;
     }
-    
+
 
     if(1)
         if(1)
         {
-            
+
         }
-        
+
     return func(7.6)[0];
-    
+
 }

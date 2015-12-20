@@ -7,7 +7,6 @@ int main(){
     char tabc[10];
     int tabi2[];
 
-
     tabi[1] = -42;
     tabf[2] = 5.75;
     tabc[3] = 'Z';
