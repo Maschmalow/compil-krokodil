@@ -83,7 +83,6 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 //meh, same.
 void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
 {
-	printf("cmp %s:%d\n", arg2, cur_depth); 
 
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;
@@ -113,8 +112,9 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 }
 
 
-void function_definition_semantics[char** resultp, type_p arg1, var_s* arg2, char* arg3)
+void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, char* arg3)
 {
+    *resultp = NULL;
     assign_deepest(arg2->type, arg11);
     hash_add_l(cur_vars, arg2);
     type_f* f = arg2->type->func;
@@ -142,8 +142,8 @@ void function_definition_semantics[char** resultp, type_p arg1, var_s* arg2, cha
 		REALLOC(fmt, size +2);
 		strcat(fmt, " )");
 
-    add_line(&$$, "define %s {", fmt);
-    add_ll_c(&$$, "%s", arg3);
+    add_line(resultp, "define %s {", fmt);
+    add_ll_c(resultp, "%s", arg3);
     add_line(resultp, "}" );
     
     free(fmt); free(arg3);
@@ -154,6 +154,7 @@ void function_definition_semantics[char** resultp, type_p arg1, var_s* arg2, cha
 //be careful to conversions to i1 for conditional jumps though
 void iteration_semantics(char** resultp, expr_s* arg1, expr_s* arg2, expr_s* arg3, char* arg4)
 { 
+    *resultp = NULL;
     char* cond = new_label("for.cond"); char* body = new_label("for.body"); char* inc = new_label("for.inc"); char* end = new_label("for.end");
     add_ll_c(resultp, "%s", arg1->ll_c);
     add_line(resultp, "br label %%%s\n", cond);
@@ -178,6 +179,7 @@ void iteration_semantics(char** resultp, expr_s* arg1, expr_s* arg2, expr_s* arg
 //same
 void iteration_do_while_semantics(char** resultp, char* arg1, expr_s* arg2)
 { 
+    *resultp = NULL;
     char* cond = new_label("do.cond"); char* body = new_label("do.body"); char* end = new_label("do.end");
     add_line(resultp, "br label %%%s\n", body);
 

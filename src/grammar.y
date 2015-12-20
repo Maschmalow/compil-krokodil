@@ -67,15 +67,15 @@ primary_expression
                         for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                         copy_type_s($$->type,  var->type); 
                         
-                        char* var_type = ll_code($$->type);
+                        char* var_type = ll_type($$->type);
                         add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
                         free(var_type); free($1);}
 | CONSTANTI { $$ = new_empty_expr_s(); $$->reg = new_reg(); $$->type->prim = ($1 >= -128 && $1 <= 127)? CHAR_T : INT_T; 
-                        char e_type = ll_code($$->type);
+                        char* e_type = ll_type($$->type);
                         add_line(&($$->ll_c), "%%%d = add %s 0, %d", $$->reg, e_type, $1);
                         free(e_type);}
 | CONSTANTF { $$ = new_empty_expr_s(); $$->type->prim = FLOAT_T; 
-                        char e_type = ll_code($$->type);
+                        char* e_type = ll_type($$->type);
                         add_line(&($$->ll_c), "%%%d = fadd %s 0, %016lx", $$->reg, e_type, *((long int *)&$1)); 
                         free(e_type);}
 | '(' expression ')' { $$ = $2; }
@@ -94,9 +94,9 @@ primary_expression
                                                                     
                                                                     
                                                                     for(int i=0; $3[i] != NULL; i++) {
-                                                                        add_ll_c($3[i]);
+                                                                        add_ll_c(&($$->ll_c), "%s", $3[i]);
                                                                     }
-                                                                    char e_type = ll_code($$->type);
+                                                                    char e_type = ll_type($$->type);
                                                                     if($$->type->prim != VOID_T) {
                                                                     //add_line("%%d = call %s
                                                                     }
@@ -109,7 +109,7 @@ primary_expression
                                     for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                                     copy_type_s($$->type,  var->type); 
                                     
-                                    char* var_type = ll_code($$->type);
+                                    char* var_type = ll_type($$->type);
                                     add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
                                     assignement_op_semantics(&$$, ,"add", );
                                     add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
