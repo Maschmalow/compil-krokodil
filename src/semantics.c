@@ -167,7 +167,7 @@ void identifier_semantics(expr_s** resultp, char* arg1)
     copy_type_s(result->type,  var->type); 
 
     char* var_type = ll_type(result->type);
-    add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d  :%s", result->reg, var_type, var_type, var->addr_reg, arg1);
+    add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d  ;%s", result->reg, var_type, var_type, var->addr_reg, arg1);
     free(var_type); free(arg1);
 }
 
