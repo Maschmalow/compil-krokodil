@@ -143,14 +143,14 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     for(int i=0; i< f->nb_param; i++) {
         
         char* param_type = ll_type(f->params[i]);
-        add_line(resultp, "%%%d = alloca %s  ;%s", cur_param->addr_reg, param_type, cur_param->s_id);
-        add_line(resultp, "store %s %%%d, %s* %%%d", param_type, param_regs[i], param_type, cur_param->addr_reg);
+        add_line(resultp, "  %%%d = alloca %s  ;%s", cur_param->addr_reg, param_type, cur_param->s_id);
+        add_line(resultp, "  store %s %%%d, %s* %%%d", param_type, param_regs[i], param_type, cur_param->addr_reg);
         
         cur_param = cur_param->hh_param.next;
         free(param_type);        
     }
     add_ll_c(resultp, "%s", arg3);
-    add_line(resultp, "}" );
+    add_line(resultp, "}\n\n" );
 
     free_var_map_param(cur_func_params); free(arg3);
 }
