@@ -161,8 +161,25 @@ void identifier_semantics(expr_s** resultp, char* arg1)
     char* var_type = ll_type(result->type);
     add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d", result->reg, var_type, var_type, var->addr_reg);
     free(var_type); free(arg1);
-    
 }
+
+void constant_semantics(expr_s** resultp, int n_val, double f_val, type_p t)
+{
+    *resultp = new_empty_expr_s(); 
+    expr_s* result = *resultp;
+    result->reg = new_reg();
+    result->type->prim = t; 
+    char* e_type = ll_type(result->type);
+    
+    if(t == FLOAT_T) {
+        add_line(&(result->ll_c), "%%%d = fadd %s 0, %016lx", result->reg, e_type, *((long int *)&f_val)); 
+	}
+    if(t == INT_T || t == CHAR_T)
+        add_line(&(result->ll_c), "%%%d = add %s 0, %d", result->reg, e_type, n_val); 
+    
+    free(e_type);
+}
+
 
 //conditions and loops are mostly jumps and labels, with previous code inbetween
 //be careful to conversions to i1 for conditional jumps though

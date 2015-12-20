@@ -11,8 +11,8 @@ void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2);
 void iteration_semantics(char** resultp, expr_s* arg1, expr_s* arg2, expr_s* arg3, char* arg4);
 void iteration_do_while_semantics(char** resultp, char* arg1, expr_s* arg2);
 void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, char* arg3);
-
-
+void identifier_semantics(expr_s** resultp, char* arg1);
+void constant_semantics(expr_s** resultp, int n_val, double f_val, type_p t);
 
 
 
