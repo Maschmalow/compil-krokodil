@@ -77,7 +77,7 @@ var_s* new_empty_var_s()
 	var_s* ret = malloc(sizeof(*ret));
 	memset(ret, 0, sizeof(*ret));
 	ret->type = new_empty_type_s();
-    ret->reg = new_reg();
+    ret->addr_reg = new_reg();
 	return ret;
 }
 
