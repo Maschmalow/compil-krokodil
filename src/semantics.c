@@ -152,7 +152,7 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     add_ll_c(resultp, "%s", arg3);
     add_line(resultp, "}\n\n" );
 
-    free_var_map_param(cur_func_params); free(arg3);
+    free_var_map_param(cur_func_params); free(arg3); free(param_regs); free(def);
 }
 
 void identifier_semantics(expr_s** resultp, char* arg1)
@@ -215,8 +215,8 @@ void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
         add_line(&(result->ll_c), "call %s @%s(%s)", e_type, var->s_id, params);
     }
 
-    for(int i=0; arg2[i] != NULL; i++)  free(arg2[i]);                                                                    
-    free(arg2); free(arg1); free(e_type);
+    for(int i=0; arg2[i] != NULL; i++)  free_expr_s(arg2[i]);                                                                    
+    free(arg2); free(arg1); free(e_type); free(params);
     
 }
 
