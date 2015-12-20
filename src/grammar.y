@@ -122,7 +122,7 @@ primary_expression
                                     expr_s* result_cp = new_empty_expr_s(); 
                                     result_cp->reg = $$->reg; 
                                     copy_type_s(result_cp->type, $$->type); 
-                                    strdup(result_cp->ll_c, $$->ll_c); 
+                                    result_cp->ll_c = strdup($$->ll_c); 
                                     
                                     expr_s* incr;
                                     assignement_op_semantics(&incr, result_cp,"add", e_1);
@@ -150,7 +150,7 @@ primary_expression
                                     expr_s* result_cp = new_empty_expr_s(); 
                                     result_cp->reg = $$->reg; 
                                     copy_type_s(result_cp->type, $$->type); 
-                                    strdup(result_cp->ll_c, $$->ll_c); 
+                                    result_cp->ll_c = strdup($$->ll_c); 
                                     
                                     expr_s* incr;
                                     assignement_op_semantics(&incr, result_cp,"sub", e_1);
@@ -236,7 +236,7 @@ declaration //ll_c
 | EXTERN type_name declarator ';'{ $$ = NULL;
                                                     $3->flags |= VAR_EXTERN;                                      
                                                     assign_deepest($3->type, $2);
-                                                    $2->addr_reg = new_reg();
+                                                    $3->addr_reg = new_reg();
                                                     hash_add_l(cur_vars, $3);
                                                     free_var_map(&pending_map);
                                                     
