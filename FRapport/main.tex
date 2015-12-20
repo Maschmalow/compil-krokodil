@@ -1,0 +1,81 @@
+\documentclass[a4paper,12pt]{article}
+
+%====================== PACKAGES ======================
+
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{minted}
+%modifier la mise en page de l'abstract
+\usepackage{abstract}
+%police et mise en page (marges) du document
+\usepackage[T1]{fontenc}
+\usepackage[top=3.5cm, bottom=3cm, left=2cm, right=2cm]{geometry}
+
+%======================== DEBUT DU DOCUMENT ========================
+
+%=========================== PAGE DE GARDE =========================
+\begin{document}
+\begin{titlepage}
+
+
+\begin{center}
+
+~\\[3.0cm]
+
+\textsc{\LARGE ENSEIRB-MATMECA}\\[1.5cm]
+
+\textsc{\Large  Compilation - rapport final}\\[1.5cm]
+
+\hrule ~\\[0.4cm]
+{\huge \bfseries  C + map reduce}\\[0.4cm]
+\hrule ~\\[1.5cm]
+
+\begin{minipage}[t]{0.4\textwidth}
+  \begin{flushleft} \large
+    \emph{Auteurs :}\\
+    Alexis \textsc{Chan}\\
+    Antoine \textsc{Durand}
+  \end{flushleft}
+\end{minipage}
+\begin{minipage}[t]{0.5\textwidth}
+  \begin{flushright} \large
+    \emph{Responsables :} \\
+    M.~Denis \textsc{Barthou} \\
+    M.~Marc \textsc{Sergent}\\
+
+  \end{flushright}
+\end{minipage}
+
+\end{center}
+
+\end{titlepage}
+
+\newpage
+\section*{Introduction}
+Ce rapport sert de conclusion au projet de compilation. Il contient des détails sur les différentes fonctions implémentées durant ce projet. Nous ferons un état des lieux entre ce qui a été décrit dans le premier rapport et ce qui a été effectivement réalisé. 
+
+La description de nos choix d'implémentation sera faite ainsi que la gestion des différents éléments du compilateur. 
+
+Un retour sur les tests sera également fait, ainsi que le passage ou non de ceux-ci par le compilateur écrit. 
+Enfin, nous terminerons par ce qui aurait pu être fait si nous avions eu plus de temps. 
+
+\tableofcontents
+
+\newpage
+
+\section{Résumé des fonctionnalités du compilateur}
+\input{FonctionsCompilateur}
+\section{Implémentation et gestion des éléments du compilateur}
+\input{ElCompilateurs}
+\section{Tests réalisés sur le compilateur}
+\input{Tests}
+\section{Conclusion}
+C'EST UN PROJET DE MERDE.
+
+\end{document}
