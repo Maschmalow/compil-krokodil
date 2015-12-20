@@ -221,8 +221,6 @@ void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
  //
 void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 {
-	printf("ass :%d\n",  cur_depth);
-
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;
 	result->reg = arg3->reg;

@@ -3,7 +3,7 @@ YACC=bison
 CFLAGS=-Wall -g -std=gnu11 -D_GNU_SOURCE
 CC=gcc
 
-all:parse
+all:krokodil
 
 parse:grammar.c scanner.c semantics.c types.c data.c
 	$(CC) $(CFLAGS) -o $@ $^
