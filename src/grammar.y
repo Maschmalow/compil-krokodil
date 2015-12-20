@@ -72,8 +72,8 @@ primary_expression
 | MAP '(' postfix_expression ',' postfix_expression ')'  { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);} 
 | REDUCE '(' postfix_expression ',' postfix_expression ')'   { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);}
 
-| IDENTIFIER '(' ')'  { expr_s** ALLOC(empty_list); *empty_list = NULL; call_semantics($1, empty_list); }
-| IDENTIFIER '(' argument_expression_list ')' {  call_semantics($1, $3); }
+| IDENTIFIER '(' ')'  { expr_s** ALLOC(empty_list); *empty_list = NULL; call_semantics(&$$, $1, empty_list); }
+| IDENTIFIER '(' argument_expression_list ')' {  call_semantics(&$$, $1, $3); }
                                                                     
 | IDENTIFIER INC_OP {
                                     identifier_semantics(&$$, $1);
