@@ -116,7 +116,7 @@ primary_expression
 
 postfix_expression
 : primary_expression { $$ = $1; }
-| postfix_expression '[' expression ']' {
+| IDENTIFIER '[' expression ']' {
                                                          $$ = new_empty_expr_s();
                                                          copy_type_s($$->type, $1->type->tab->elem);
                                                          
