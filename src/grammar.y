@@ -116,11 +116,7 @@ primary_expression
 
 postfix_expression
 : primary_expression { $$ = $1; }
-| IDENTIFIER '[' expression ']' {
-                                                         $$ = new_empty_expr_s();
-                                                         copy_type_s($$->type, $1->type->tab->elem);
-                                                         
-                                                         free($1); free_expr_s($3); }
+| IDENTIFIER '[' expression ']' { access_tab_semantics(&$$, $1, $3);}
 ;
 
 argument_expression_list //expr_s**, a NULL terminated list of expressions
