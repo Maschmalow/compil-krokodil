@@ -358,22 +358,10 @@ void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
     for(var_lmap* cur = cur_vars; (var = hash_find(cur, arg1))  == NULL; cur = cur->up);
     copy_type_s(result->type,  var->type->func->ret);
 
-		char* var_type = ll_type(result->type);
+    char* var_type = ll_type(result->type);
     add_line(&(result->ll_c), "%%%d = load %s** %%1, align 8", result->reg, var_type, var_type, var->addr_reg, arg1);
-	  add_line(&(result->ll_c), "%%%d = getelementptr inbounds 	%s %%2, i64 %d",result->reg,var_type, arg2);
+    add_line(&(result->ll_c), "%%%d = getelementptr inbounds %s %%2, i64 %d",result->reg,var_type, arg2);
 
 
-    free(var_type); free(arg1);
-		// struct var_s {
-		// 		char* s_id;  //key
-		//
-		// 		int addr_reg;
-		// 		int flags;
-		// 		type_s* type;
-		//
-		// 		UT_hash_handle hh; //for uthash
-		// 		UT_hash_handle hh_param; //it's not possible to have the same item in two maps, so we add this handle for the parameters map
-
-
-
+    free(var_type); free(arg1); free_expr_s(arg2);
 }
