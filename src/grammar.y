@@ -197,7 +197,7 @@ declaration //ll_c
                                         assign_deepest($2->type, $1);
                                         $2->addr_reg = new_reg();
                                         hash_add_l(cur_vars, $2);
-                                        free_var_map(&cur_func_params);
+                                        //free_var_map(&cur_func_params);
                                         
                                         char* v_type = ll_type($2->type);
                                         add_line(&$$, "%%%d = alloca %s  ;%s", $2->addr_reg, v_type, $2->s_id);
@@ -209,7 +209,7 @@ declaration //ll_c
                                                     assign_deepest($3->type, $2);
                                                     $3->addr_reg = new_reg();
                                                     hash_add_l(cur_vars, $3);
-                                                    free_var_map(&cur_func_params);
+                                                    //free_var_map(&cur_func_params);
                                                     
                                                     char* v_type = ll_type($3->type);
                                                     add_line(&$$, "@%d = external global %s  ;%s", $3->addr_reg, v_type, $3->s_id);
