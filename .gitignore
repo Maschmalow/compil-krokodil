@@ -2,4 +2,7 @@ src/parse
 src/grammar.tab.h
 src/grammar.c
 src/scanner.c
+analysis.out
+src/krokodil
+src/*.dSYM
 *~

@@ -11,11 +11,11 @@ float azerty(char b)
 }
 
 
-extern int (*g)(int);
+extern int g(int a);
 
 int main()
 {
-  
+
   int C[10];
   int B[];
   int A[1000];
@@ -23,12 +23,12 @@ int main()
   float T2[50];
   char T1[10];
 
-  int (*w)(int);
+  int w(int a);
 
-  
+
   map(w, C);
 
-  T2 = map(azerty, T1); 
+  T2 = map(azerty, T1);
 
   B = map(g,map(f,A));
 

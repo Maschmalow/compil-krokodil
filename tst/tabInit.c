@@ -6,4 +6,6 @@ int main(){
   float tabf[10];
   char tabc[10];
   int tabi2[];
+
+return 0;
 }
