@@ -9,7 +9,7 @@
 
 
 //declarators are tricky:
-// the regular expression is 'IDENTIFIER{ []  |  () }*'
+// the regular expr	ession is 'IDENTIFIER{ []  |  () }*'
 // eg. 'var()[][]'
 // the type is read from right to left: var is function the return a tab of tabs (aka 2-dimensional tab)
 // but the grammar is declarator -> declarator[]
@@ -303,7 +303,7 @@ void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
     char* then = new_label("if.then"); char* _else = new_label("if.else"); char* end = new_label("if.end");
 
     add_ll_c(resultp, "%s", cond->ll_c);
-    
+
     conversion_semantics(&cond, cond, )
     add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n", cond->reg, then, _else); // ! convert to i1
 
@@ -360,7 +360,7 @@ void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
 
     char* var_type = ll_type(result->type);
     add_line(&(result->ll_c), "%%%d = load %s** %%1, align 8", result->reg, var_type, var_type, var->addr_reg, arg1);
-    add_line(&(result->ll_c), "%%%d = getelementptr inbounds %s %%2, i64 %d",result->reg,var_type, arg2);
+    add_line(&(result->ll_c), "%%%d = getelementptr inbounds %s %%2, i64 %%%d",result->reg,var_type, var->adr->reg);
 
 
     free(var_type); free(arg1); free_expr_s(arg2);
