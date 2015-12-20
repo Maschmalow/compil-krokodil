@@ -58,6 +58,7 @@ void  free_var_map(var_s** map)
         HASH_DEL(*map, cur_var);  
         free_var_s(cur_var);           
     }
+    *map = NULL;
 }
 
 
