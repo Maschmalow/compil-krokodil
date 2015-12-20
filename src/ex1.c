@@ -5,15 +5,11 @@ int add(int x,int y) {
   return x+y;
 }
 int main() {
-  int A[1000];
-  int i;
+  int A[100];
+  int B[200];
   int x;
   
-  for (i=0; i<1000; i++) 
-      A[i]=i;
-  
-  add(x, i);
-  square(A[5]);
+  B = A;
   
   return x;
 }

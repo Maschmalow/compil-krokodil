@@ -96,7 +96,7 @@ primary_expression
                                                                     for(int i=0; $3[i] != NULL; i++) {
                                                                         add_ll_c(&($$->ll_c), "%s", $3[i]);
                                                                     }
-                                                                    char e_type = ll_type($$->type);
+                                                                    char* e_type = ll_type($$->type);
                                                                     if($$->type->prim != VOID_T) {
                                                                     //add_line("%%d = call %s
                                                                     }
@@ -104,22 +104,55 @@ primary_expression
                                                                     for(int i=0; $3[i] != NULL; i++)  free($3[i]);                                                                    
                                                                     free($3); free($1); free(e_type);}
                                                                     
-| IDENTIFIER INC_OP { $$ = new_empty_expr_s();  $$->reg = new_reg();
+| IDENTIFIER INC_OP {$$ = new_empty_expr_s();
+                                    $$->reg = new_reg();
                                     var_s* var;
                                     for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                                     copy_type_s($$->type,  var->type); 
                                     
                                     char* var_type = ll_type($$->type);
                                     add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
-                                    assignement_op_semantics(&$$, ,"add", );
-                                    add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
-                                    free(var_type); free($1);}
+                                    free(var_type); free($1);
+                                    
+                                    expr_s* e_1 = new_empty_expr_s(); e_1->reg = new_reg(); e_1->type->prim =  CHAR_T; 
+                                    char* e_type = ll_type(e_1->type);
+                                    add_line(&(e_1->ll_c), "%%%d = add %s 0, 1", e_1->reg, e_type);
+                                    free(e_type);
+                                    
+                                    expr_s* $$_cp = new_empty_expr_s(); $$_cp->reg = $$->reg; copy_type_s($$_cp->type, $$->type); strdup($$_cp->ll_c, $$->ll_c); 
+                                    
+                                    expr_s* incr;
+                                    assignement_op_semantics(&incr, $$_cp,"add", e_1);
+                                    free($$->ll_c);
+                                    $$->ll_c = strdup(incr->ll_c);
+                                    free_expr_s(incr);
+                                    
+                                    }
                                 
 | IDENTIFIER DEC_OP { $$ = new_empty_expr_s();
+                                    $$->reg = new_reg();
                                     var_s* var;
                                     for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
                                     copy_type_s($$->type,  var->type); 
-                                    free($1);}
+                                    
+                                    char* var_type = ll_type($$->type);
+                                    add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
+                                    free(var_type); free($1);
+                                    
+                                    expr_s* e_1 = new_empty_expr_s(); e_1->reg = new_reg(); e_1->type->prim =  CHAR_T; 
+                                    char* e_type = ll_type(e_1->type);
+                                    add_line(&(e_1->ll_c), "%%%d = add %s 0, 1", e_1->reg, e_type);
+                                    free(e_type);
+                                    
+                                    expr_s* $$_cp = new_empty_expr_s(); $$_cp->reg = $$->reg; copy_type_s($$_cp->type, $$->type); strdup($$_cp->ll_c, $$->ll_c); 
+                                    
+                                    expr_s* incr;
+                                    assignement_op_semantics(&incr, $$_cp,"sub", e_1);
+                                    free($$->ll_c);
+                                    $$->ll_c = strdup(incr->ll_c);
+                                    free_expr_s(incr);
+                                    
+                                    }
 ;
 
 postfix_expression
