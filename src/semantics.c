@@ -103,6 +103,8 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
+    conversion_semantics();
+    conversion_semantics();
 	add_line(&(result->ll_c),"%%%d = %ccmp %s%s %s %%%d, %%%d", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
     //puts(result->ll_c);
 	free(tmp);
@@ -115,16 +117,15 @@ void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
 {
     if(equal_type_s(arg1->type, arg3))
     {
-        free_type_s(arg1->type);
-        arg1->type = arg3;
         *resultp = arg1;
         return;
     }
 
+
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;
 	result->reg = new_reg();
-    result->type = arg3;
+    copy_type_s(result->type, arg3);
 
     char* op = NULL;
     if( arg1->type->prim == CHAR_T || arg1->type->prim = INT_T) op = "sitofp";
@@ -133,6 +134,7 @@ void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
 
 	char* out_type = ll_type(result->type);
     char* in_type = ll_type(arg1->type);
+    add_ll_c(&(result->ll_c), "%s", arg1->ll_c);
 	add_line(&(result->ll_c),"%%%d = %s %s %%%d to %s", result->reg, op, in_type, arg1->reg, out_type);
 
 	free(out_type); free(in_type);
@@ -227,6 +229,7 @@ void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
     for(int i=0; arg2[i] != NULL; i++) {
         char* param_type = ll_type(arg2[i]->type);
         add_ll_c(&(result->ll_c), "%s", arg2[i]->ll_c);
+        conversion_semantics(arg2 + i, arg2[i], var->func->params[i]);
         add_ll_c(&params, "%s %%%d", param_type, arg2[i]->reg);
         if(arg2[i+1] != NULL)
             add_ll_c(&params, ", ");
@@ -300,6 +303,8 @@ void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
     char* then = new_label("if.then"); char* _else = new_label("if.else"); char* end = new_label("if.end");
 
     add_ll_c(resultp, "%s", cond->ll_c);
+    
+    conversion_semantics(&cond, cond, )
     add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n", cond->reg, then, _else); // ! convert to i1
 
     add_line(resultp, "%s:", then);
