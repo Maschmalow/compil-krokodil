@@ -125,7 +125,7 @@ postfix_expression
 
 argument_expression_list //expr_s**, a NULL terminated list of expressions
 : expression {  NALLOC($$, 2); $$[0] = $1; $$[1] = NULL;}
-| argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[size] != NULL) size++; REALLOC($$, size+1); $$[size-1] = $3; $$[size] = NULL;}
+| argument_expression_list ',' expression { $$ = $1; int size = 0; while($$[size] != NULL) size++; REALLOC($$, size+1); $$[size] = $3; $$[size+1] = NULL;}
 ;
 
 unary_expression
