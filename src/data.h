@@ -75,6 +75,8 @@ void hash_add(var_s** head, var_s* item);
 void hash_add_param(var_s** head,  var_s* item);
 void  clear_var_map_param(var_s** map);
 void  free_var_map(var_s** map);
+void  free_var_map_param(var_s** map);
+
 
 var_lmap* new_var_lmap(var_s* map, int depth, var_lmap* up); //create a new *initialised* lmap
 var_s* new_empty_var_s(); //thoses ones are set to the 'empty' value (which depends on the type)
@@ -82,6 +84,7 @@ expr_s* new_empty_expr_s();
 
 //same as for types copies
 void copy_expr_s(expr_s* e1, const expr_s* e2);
+void copy_var_s(var_s* e1, const var_s* e2);
 
 void  free_var_lmap(var_lmap* v);
 void free_expr_s(expr_s* t);

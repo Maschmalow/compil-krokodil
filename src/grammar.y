@@ -240,8 +240,10 @@ parameter_list  //type_f*
 ;
 
 parameter_declaration //type_s*
-: type_name declarator {assign_deepest($2->type, $1);                                             
-                                    hash_add_param(cur_func_params, $2);
+: type_name declarator {assign_deepest($2->type, $1);           
+                                    var_s* var_cp = new_empty_var_s();
+                                    copy_var_s(var_cp, $2);
+                                    hash_add_param(cur_func_params, var_cp);
                                     hash_add(pending_vars, $2);
                                     $$ = new_empty_type_s(); 
                                     copy_type_s($$, $2->type);

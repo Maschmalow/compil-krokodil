@@ -62,6 +62,18 @@ void  free_var_map(var_s** map)
 }
 
 
+void  free_var_map_param(var_s** map)
+{
+    struct var_s *cur_var, *tmp;
+
+    HASH_ITER(hh_param, *map, cur_var, tmp) {
+        HASH_DEL(*map, cur_var);  
+        free_var_s(cur_var);           
+    }
+    *map = NULL;
+}
+
+
 
 var_lmap* new_var_lmap(var_s* map, int depth, var_lmap* up)
 {
@@ -99,6 +111,13 @@ void copy_expr_s(expr_s* e1, const expr_s* e2)
     copy_type_s(e1->type, e2->type);
 }
 
+void copy_var_s(var_s* v1, const var_s* v2)
+{
+    v1->s_id = strdup(v2->s_id);
+    v1->addr_reg = v2->addr_reg;
+    v1->flags = v2->flags;
+    copy_type_s(v1->type, v2->type);
+}
 
 void  free_var_lmap(var_lmap* v)
 {
