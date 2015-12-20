@@ -333,7 +333,9 @@ program
 ;
 
 start
-: program { puts($1); free($1);}
+: program { var_s* f_main = hash_find(cur_vars, "main"); if( f_main ==NULL || (f_main != NULL && !IS_FUNC(f_main->type)) )  
+                        puts("Warning:  no main function found"); 
+    puts($1); free($1);}
 
 external_declaration
 : function_definition { $$ = $1; }
