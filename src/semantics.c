@@ -131,7 +131,7 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     for(int i=0; i< f->nb_param-1; i++) {
         char* param_type = ll_type(f->params[i]);
         param_regs[i] = new_reg();
-        add_ll_c(&def, "%s %%%s", param_type, param_regs[i]);
+        add_ll_c(&def, "%s %%%d", param_type, param_regs[i]);
         if(i != f->nb_param-1)
             add_ll_c(&def, ", ");
         
