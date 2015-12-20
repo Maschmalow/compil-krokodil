@@ -187,6 +187,37 @@ void constant_semantics(expr_s** resultp, int n_val, double f_val, type_p t)
 }
 
 
+void call_semantics(expr_s** resultp, char arg1, expr_s** arg2)
+{
+    *resultp = new_empty_expr_s(); 
+    expr_s* result = *resultp;
+    var_s* var;
+    for(var_lmap* cur = cur_vars; (var = hash_find(cur, arg1))  == NULL; cur = cur->up);
+    copy_type_s(result->type,  var->type->func->ret);
+
+
+    char* params = NULL;
+    for(int i=0; arg2[i] != NULL; i++) {
+        add_ll_c(&(result->ll_c), "%s", arg2[i]->ll_c);
+        add_ll_c(&params, "%s %%%d");
+        if(arg2[i+1] != NULL)
+            add_ll_c(&params, ", ");
+    }
+    
+   
+    
+    char* e_type = ll_type(result->type);
+    if(result->type->prim != VOID_T) {
+        add_line(&(result->ll_c), "%%%d = call %s @%s(%s)", result->reg, e_type, var->s_id, params);
+    } else {
+        add_line(&(result->ll_c), "call %s @%s(%s)", result->reg, e_type, var->s_id, params);
+    }
+
+    for(int i=0; arg2[i] != NULL; i++)  free(arg2[i]);                                                                    
+    free(arg2); free(arg1); free(e_type);
+    
+}
+
 //conditions and loops are mostly jumps and labels, with previous code inbetween
 //be careful to conversions to i1 for conditional jumps though
 void iteration_semantics(char** resultp, expr_s* arg1, expr_s* arg2, expr_s* arg3, char* arg4)
