@@ -67,7 +67,7 @@ void  free_var_map_param(var_s** map)
     struct var_s *cur_var, *tmp;
 
     HASH_ITER(hh_param, *map, cur_var, tmp) {
-        HASH_DEL(*map, cur_var);  
+        HASH_DELETE(hh_param, *map, cur_var);  
         free_var_s(cur_var);           
     }
     *map = NULL;
