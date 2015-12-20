@@ -141,7 +141,7 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     
     
     add_line(resultp, "define %s {", def);
-    var_s* cur_param = cur_func_params;
+    cur_param = cur_func_params;
     for(int i=0; i< f->nb_param; i++) {
         
         char* param_type = ll_type(f->params[i]);
@@ -154,7 +154,7 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     add_ll_c(resultp, "%s", arg3);
     add_line(resultp, "}" );
 
-    free(fmt); free(arg3);
+    clear_var_map_param(&cur_func_params); free(arg3);
 }
 
 void identifier_semantics(expr_s** resultp, char* arg1)
