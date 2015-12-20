@@ -138,7 +138,7 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
         cur_param = cur_param->hh_param.next;
         free(param_type);        
     }
-    
+    add_ll_c(&def, " )");
     
     add_line(resultp, "define %s {", def);
     cur_param = cur_func_params;
