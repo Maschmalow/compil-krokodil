@@ -60,10 +60,23 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
     expr_s* result = *resultp;
 	result->reg = new_reg();
 
-
-	result->type->prim = CHAR_T;
-	if(arg1->type->prim == INT_T || arg3->type->prim == INT_T || *arg2 == 'm') result->type->prim = INT_T;
-	if(arg1->type->prim == FLOAT_T || arg3->type->prim == FLOAT_T || *arg2 == 'd') result->type->prim = FLOAT_T;
+    
+    if(arg1->type->prim == FLOAT_T || arg3->type->prim == FLOAT_T ) 
+    {
+        result->type->prim = FLOAT_T;
+        conversion_semantics(&arg1, arg1, INT_T);
+        conversion_semantics(&arg3, arg3, INT_T);
+    }
+    else if(arg1->type->prim == INT_T || arg3->type->prim == INT_T ) 
+    {
+        result->type->prim = INT_T;
+        conversion_semantics(&arg1, arg1, INT_T);
+        conversion_semantics(&arg3, arg3, INT_T);
+    }
+    else{
+        result->type->prim = CHAR_T;
+    }
+	
 
 	char op_type[2] = {0};
 	if(result->type->prim == FLOAT_T) {
@@ -95,16 +108,24 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 	if(arg1->type->prim == FLOAT_T || arg3->type->prim == FLOAT_T )  {
         op_type = 'f';
         cond_type[0] = 'o';
+        
+        if(arg1->type->prim == FLOAT_T)
+            conversion_semantics(&arg3, arg3, arg1->type);
+        else
+            conversion_semantics(&arg1, arg1, arg3->type);
     } else {
         op_type = 'i';
         if( arg2[0] != 'e' && arg2[0] != 'n')
             cond_type[0] = 's';
+        
+        if(arg1->type->prim == INT_T)
+            conversion_semantics(&arg3, arg3, arg1->type);
+        if(arg3->type->prim == INT_T)
+            conversion_semantics(&arg1, arg1, arg3->type);
     }
 
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
-    conversion_semantics();
-    conversion_semantics();
 	add_line(&(result->ll_c),"%%%d = %ccmp %s%s %s %%%d, %%%d", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
     //puts(result->ll_c);
 	free(tmp);
