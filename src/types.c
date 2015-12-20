@@ -77,6 +77,27 @@ type_t* new_empty_type_t()
 	return ret;	    
 }
 
+char equal_type_s(const type_s* t1, const type_s* t2)
+{
+    if(IS_PRIMARY(t1) && IS_PRIMARY(t2))
+        return t1->prim = t2->prim;
+    else if(IS_TAB(t1) && IS_TAB(t2)) {
+        return t1->tab->size == t2->tab->size &&
+                    equal_type_s(t1->tab->elem, t2->tab->elem);
+    }
+    else if(IS_FUNC(t1) && IS_FUNC(t2)) {
+        if (1->func->nb_param != t2->func->nb_param || !equal_type_s(t1->func->ret, t2->func->ret) )
+            return 0;
+        
+        for(int i=0; i < t1->func->nb_param; i++)
+            if(!equal_type_s(t1->func->params[i], t2->func->params[i])
+                return 0;
+        
+        return  1;
+    }
+    
+    return false;
+}
 
 void copy_type_s(type_s* t1, const type_s* t2)
 {

@@ -111,6 +111,33 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 
 }
 
+void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
+{
+    if(equal_type_s(arg1->type, arg3))
+    {
+        free_type_s(arg1->type);
+        arg1->type = arg3;
+        *resultp = arg1;
+        return;
+    }
+
+	*resultp = new_empty_expr_s();
+    expr_s* result = *resultp;
+	result->reg = new_reg();
+    result->type = arg3;
+
+    char* op = NULL;
+    if( arg1->type->prim == CHAR_T || arg1->type->prim = INT_T) op = "sitofp";
+    if( arg1->type->prim == FLOAT_T ) op = "fptosi";
+    
+
+	char* out_type = ll_type(result->type);
+    char* in_type = ll_type(arg1->type);
+	add_line(&(result->ll_c),"%%%d = %s %s %%%d to %s", result->reg, op, in_type, arg1->reg, out_type);
+
+	free(out_type); free(in_type);
+	free_expr_s(arg1);
+}
 
 void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, char* arg3)
 {
@@ -301,7 +328,6 @@ void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
 	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d", tmp, arg3->reg, tmp, arg1->reg/*addr*/);
-    //puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
 	free_expr_s(arg3);

@@ -50,6 +50,7 @@ char* ll_type(type_s* t); //allocate a string which contain the llvm representat
  //but we know the primary type of the deepest type at the end
  // for instance, for the function that returns a tab of functions, the deepest primary type is the return type of the functions in the tab returned by the function :)
 void assign_deepest(type_s* t, type_p p); //so you get it, it assigns to the deepest type its priary type
+char equal_type_s(const type_s* t1, const type_s* t2);
 
 type_s* new_empty_type_s(); //not a type of any kind
 type_f* new_empty_type_f(); //no param, empty ret type
