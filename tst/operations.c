@@ -1,7 +1,7 @@
 //Operations valides
 
 
-int main{
+int main(){
   int i;
   int j;
   float f;
