@@ -1,7 +1,7 @@
 //Affectations tableaux types de base
 
-int main{
-  
+int main(){
+
     int tabi[10];
     float tabf[10];
     char tabc[10];

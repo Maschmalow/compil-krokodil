@@ -1,6 +1,6 @@
 //Ne dois PAS compiler, operations invalides
 
-int main {
+int main() {
   int i;
   int j;
   float f;
