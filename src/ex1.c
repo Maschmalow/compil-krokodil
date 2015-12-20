@@ -9,7 +9,9 @@ int main() {
   int B[200];
   int x;
   
-  B = A;
+  square(x);
+  
+  x = add(x, x);
   
   return x;
 }

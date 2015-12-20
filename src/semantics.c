@@ -119,30 +119,38 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     hash_add_l(cur_vars, arg2);
     type_f* f = arg2->type->func;
 
-        //stolen and adapted code from ll_type(). I know it's bad I plea guilty :(
-        int size;
-        char* fmt = NULL;
-        char* param = NULL;
-		char* ret_type = ll_type(f->ret);
-		asprintf(&fmt, "%s @%s(", ret_type, arg2->s_id);
-		free(ret_type);
-		size = strlen(fmt) +1;
-		for(int i=0; i< f->nb_param; i++)
-		{
-			char* param_type = ll_type(f->params[i]);
-            asprintf(&param, "%s %%%s", param_type, "fuck"); // :( :( :(
-            free(param_type);
-			size += strlen(param) +2;
-			REALLOC(fmt, size);
-			strcat(fmt, param);
-			if(i != f->nb_param-1)
-				strcat(fmt, ", ");
-			free(param);
-		}
-		REALLOC(fmt, size +2);
-		strcat(fmt, " )");
-
-    add_line(resultp, "define %s {", fmt);
+    
+    int* param_regs = NULL;
+    if(f->nb_param != 0)  NALLOC(param_regs, f->nb_param);
+    char* def = NULL;
+    char* ret_type = ll_type(f->ret);
+    add_ll_c(&def,  "%s @%s(", ret_type, arg2->s_id);
+    free(ret_type);
+    var_s* cur_param = cur_func_params;
+    
+    for(int i=0; i< f->nb_param; i++) {
+        char* param_type = ll_type(f->params[i]);
+        param_regs[i] = new_reg();
+        add_ll_c(&def, "%s %%%s"param_type, param_regs[i]);
+        if(i != f->nb_param-1)
+            add_ll_c(&def, ", ");
+        
+        cur_param = cur_param->hh_param.next;
+        free(param_type);        
+    }
+    
+    
+    add_line(resultp, "define %s {", def);
+    var_s* cur_param = cur_func_params;
+    for(int i=0; i< f->nb_param; i++) {
+        
+        char* param_type = ll_type(f->params[i]);
+        add_line(resultp, "%%%d = alloca %s  ;%s", cur_param->addr_reg, param_type, cur_param->s_id);
+        add_line(resultp, "store %s %%%d, %s* %%%d", param_type, param_regs[i], param_type, cur_param->addr_reg);
+        
+        cur_param = cur_param->hh_param.next;
+        free(param_type);        
+    }
     add_ll_c(resultp, "%s", arg3);
     add_line(resultp, "}" );
 
@@ -159,7 +167,7 @@ void identifier_semantics(expr_s** resultp, char* arg1)
     copy_type_s(result->type,  var->type); 
 
     char* var_type = ll_type(result->type);
-    add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d", result->reg, var_type, var_type, var->addr_reg);
+    add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d  :%s", result->reg, var_type, var_type, var->addr_reg, arg1);
     free(var_type); free(arg1);
 }
 

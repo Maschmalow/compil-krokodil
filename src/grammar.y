@@ -17,7 +17,7 @@
     //so during a function definition, the paraeters are not within the right hashmap
     //to prevent this, there is a global hashmap, in which we add functions parameters
     // when a function is defined, the content of this map is added to the current map
-	var_s* pending_map = EMPTY_MAP;
+	var_s* cur_func_params = EMPTY_MAP;
     //the only issue  is that it does not currently allow functions as parameters 
     //this could be solved by changing the grammar, with adding a second parameter_list token, with unnamed parameters only
 
@@ -197,7 +197,7 @@ declaration //ll_c
                                         assign_deepest($2->type, $1);
                                         $2->addr_reg = new_reg();
                                         hash_add_l(cur_vars, $2);
-                                        free_var_map(&pending_map);
+                                        free_var_map(&cur_func_params);
                                         
                                         char* v_type = ll_type($2->type);
                                         add_line(&$$, "%%%d = alloca %s  ;%s", $2->addr_reg, v_type, $2->s_id);
@@ -209,7 +209,7 @@ declaration //ll_c
                                                     assign_deepest($3->type, $2);
                                                     $3->addr_reg = new_reg();
                                                     hash_add_l(cur_vars, $3);
-                                                    free_var_map(&pending_map);
+                                                    free_var_map(&cur_func_params);
                                                     
                                                     char* v_type = ll_type($3->type);
                                                     add_line(&$$, "@%d = external global %s  ;%s", $3->addr_reg, v_type, $3->s_id);
@@ -240,7 +240,7 @@ parameter_list  //type_f*
 
 parameter_declaration //type_s*
 : type_name declarator {assign_deepest($2->type, $1);                                             
-                                    hash_add(&pending_map, $2);
+                                    hash_add_param(&cur_func_params, $2);
                                     $$ = new_empty_type_s(); 
                                     copy_type_s($$, $2->type);
                                     }

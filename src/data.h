@@ -59,6 +59,7 @@ struct var_s {
     type_s* type;
 
     UT_hash_handle hh; //for uthash
+    UT_hash_handle hh_param; //it's not possible to have the same item in two maps, so we add this handle for the parameters map
 };
 
 #define VAR_NO_FLAG 0
@@ -67,11 +68,11 @@ struct var_s {
 
 void hash_add_l(var_lmap* head, var_s* item);
 var_s* hash_find(var_lmap* head, char* key);
-void hash_put_all(var_lmap* dst, var_s** src) ; //second arg is var_s** because
-
+void hash_transfer_all(var_lmap* dst, var_s** src) ; //second arg is var_s** because we need to be able to modify the head pointer of the map
+void hash_add_all_param(var_lmap* head, var_s* map);
 
 void hash_add(var_s** head, var_s* item);
-void  clear_var_map(var_s** map);
+void  clear_var_map_param(var_s** map);
 void  free_var_map(var_s** map);
 
 var_lmap* new_var_lmap(var_s* map, int depth, var_lmap* up); //create a new *initialised* lmap

@@ -6,6 +6,12 @@
 #include "data.h"
 
 
+void hash_add_all_param(var_lmap* head, var_s* map)
+{
+    for(var_s* item = map; item != NULL; item = item->hh_param.next)
+        hash_add_l(head, item);
+}
+
 void hash_add_l(var_lmap* head, var_s* item)
 {
     hash_add(&(head->map), item);
@@ -18,7 +24,7 @@ var_s* hash_find(var_lmap* head, char* key)
     return ret;
 }
 
-void hash_put_all(var_lmap* dst, var_s** src) // ! two item can't belong to the same map
+void hash_transfer_all(var_lmap* dst, var_s** src) // ! one item can't belong to  two different map
 {
       var_s* cur, *tmp;
 
@@ -34,9 +40,14 @@ void hash_add(var_s** head,  var_s* item)
     HASH_ADD_KEYPTR(hh, *head, item->s_id, strlen(item->s_id), item );
 }
 
-void  clear_var_map(var_s** map)
+void hash_add_param(var_s** head,  var_s* item)
 {
-    HASH_CLEAR(hh, *map);  
+    HASH_ADD_KEYPTR(hh_param, *head, item->s_id, strlen(item->s_id), item );
+}
+
+void  clear_var_map_param(var_s** map)
+{
+    HASH_CLEAR(hh_param, *map);  
 }
 
 void  free_var_map(var_s** map)
@@ -66,6 +77,7 @@ var_s* new_empty_var_s()
 	var_s* ret = malloc(sizeof(*ret));
 	memset(ret, 0, sizeof(*ret));
 	ret->type = new_empty_type_s();
+    ret->reg = new_reg();
 	return ret;
 }
 
