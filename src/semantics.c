@@ -133,7 +133,7 @@ void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
 
 	char* out_type = ll_type(result->type);
     char* in_type = ll_type(arg1->type);
-	add_line(&(result->ll_c),"%%%d = %s %s %%%d to %s", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
+	add_line(&(result->ll_c),"%%%d = %s %s %%%d to %s", result->reg, op, in_type, arg1->reg, out_type);
 
 	free(out_type); free(in_type);
 	free_expr_s(arg1);

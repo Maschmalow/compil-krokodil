@@ -14,7 +14,7 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
 void identifier_semantics(expr_s** resultp, char* arg1);
 void constant_semantics(expr_s** resultp, int n_val, double f_val, type_p t);
 void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2);
-
+void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3);
 
 
 
