@@ -72,27 +72,8 @@ primary_expression
 | MAP '(' postfix_expression ',' postfix_expression ')'  { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);} 
 | REDUCE '(' postfix_expression ',' postfix_expression ')'   { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);}
 
-| IDENTIFIER '(' ')'  { $$ = new_empty_expr_s();
-                                var_s* var;
-                                for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
-                                copy_type_s($$->type,  var->type->func->ret); 
-                                free($1);}
-| IDENTIFIER '(' argument_expression_list ')' { $$ = new_empty_expr_s(); 
-                                                                    var_s* var;
-                                                                    for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
-                                                                    copy_type_s($$->type,  var->type->func->ret);
-                                                                    
-                                                                    
-                                                                    for(int i=0; $3[i] != NULL; i++) {
-                                                                        add_ll_c(&($$->ll_c), "%s", $3[i]);
-                                                                    }
-                                                                    char* e_type = ll_type($$->type);
-                                                                    if($$->type->prim != VOID_T) {
-                                                                    //add_line("%%d = call %s
-                                                                    }
-                                                                    
-                                                                    for(int i=0; $3[i] != NULL; i++)  free($3[i]);                                                                    
-                                                                    free($3); free($1); free(e_type);}
+| IDENTIFIER '(' ')'  { expr_s** ALLOC(empty_list); *empty_list = NULL; call_semantics(&$$, $1, empty_list); }
+| IDENTIFIER '(' argument_expression_list ')' {  call_semantics(&$$, $1, $3); }
                                                                     
 | IDENTIFIER INC_OP {
                                     identifier_semantics(&$$, $1);

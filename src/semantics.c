@@ -210,7 +210,7 @@ void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
     if(result->type->prim != VOID_T) {
         add_line(&(result->ll_c), "%%%d = call %s @%s(%s)", result->reg, e_type, var->s_id, params);
     } else {
-        add_line(&(result->ll_c), "call %s @%s(%s)", result->reg, e_type, var->s_id, params);
+        add_line(&(result->ll_c), "call %s @%s(%s)", e_type, var->s_id, params);
     }
 
     for(int i=0; arg2[i] != NULL; i++)  free(arg2[i]);                                                                    
