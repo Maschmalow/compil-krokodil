@@ -381,7 +381,7 @@ void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
 
     char* var_type = ll_type(result->type);
     add_line(&(result->ll_c), "%%%d = load %s** %%1, align 8", result->reg, var_type, var_type, var->addr_reg, arg1);
-    add_line(&(result->ll_c), "%%%d = getelementptr inbounds %s %%2, i64 %%%d",result->reg,var_type, var->adr->reg);
+    add_line(&(result->ll_c), "%%%d = getelementptr inbounds %s %%2, i64 %%%d",result->reg,var_type, var->addr_reg);
 
 
     free(var_type); free(arg1); free_expr_s(arg2);
