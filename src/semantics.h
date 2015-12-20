@@ -13,7 +13,7 @@ void iteration_do_while_semantics(char** resultp, char* arg1, expr_s* arg2);
 void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, char* arg3);
 void identifier_semantics(expr_s** resultp, char* arg1);
 void constant_semantics(expr_s** resultp, int n_val, double f_val, type_p t);
-
+void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2);
 
 
 

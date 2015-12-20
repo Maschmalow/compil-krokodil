@@ -187,7 +187,7 @@ void constant_semantics(expr_s** resultp, int n_val, double f_val, type_p t)
 }
 
 
-void call_semantics(expr_s** resultp, char arg1, expr_s** arg2)
+void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
 {
     *resultp = new_empty_expr_s(); 
     expr_s* result = *resultp;
