@@ -126,7 +126,6 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     char* ret_type = ll_type(f->ret);
     add_ll_c(&def,  "%s @%s(", ret_type, arg2->s_id);
     free(ret_type);
-    var_s* cur_param = cur_func_params;
     
     for(int i=0; i< f->nb_param; i++) {
         char* param_type = ll_type(f->params[i]);
@@ -135,13 +134,12 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
         if(i != f->nb_param-1)
             add_ll_c(&def, ", ");
         
-        cur_param = cur_param->hh_param.next;
         free(param_type);        
     }
     add_ll_c(&def, " )");
     
     add_line(resultp, "define %s {", def);
-    cur_param = cur_func_params;
+    var_s* cur_param = cur_func_params;
     for(int i=0; i< f->nb_param; i++) {
         
         char* param_type = ll_type(f->params[i]);
