@@ -149,6 +149,20 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     free(fmt); free(arg3);
 }
 
+void identifier_semantics(expr_s** resultp, char* arg1)
+{
+    *resultp = new_empty_expr_s();
+    expr_s* result = *resultp;
+    result->reg = new_reg();
+    var_s* var;
+    for(var_lmap* cur = cur_vars; (var = hash_find(cur, arg1))  == NULL; cur = cur->up);
+    copy_type_s(result->type,  var->type); 
+
+    char* var_type = ll_type(result->type);
+    add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d", result->reg, var_type, var_type, var->addr_reg);
+    free(var_type); free(arg1);
+    
+}
 
 //conditions and loops are mostly jumps and labels, with previous code inbetween
 //be careful to conversions to i1 for conditional jumps though

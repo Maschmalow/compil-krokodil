@@ -28,6 +28,7 @@
 %token <s_id> IDENTIFIER
 %token <f_val> CONSTANTF
 %token <n_val> CONSTANTI
+%token <c_val> CONSTANTC
 %token MAP REDUCE EXTERN
 %token INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP
 %token SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN ADD_ASSIGN
@@ -45,6 +46,7 @@
 %union {
   char* s_id;
   char* ll_code;
+  char c_val;
   int n_val;
   double f_val;
   type_s* type_d;
@@ -61,23 +63,10 @@
 // exception is if they are stored in a hashmap (for variables). then they will be free'd when the map will be destroyed, at the end of the statement. 
 
 primary_expression
-: IDENTIFIER { $$ = new_empty_expr_s();
-                        $$->reg = new_reg();
-                        var_s* var;
-                        for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
-                        copy_type_s($$->type,  var->type); 
-                        
-                        char* var_type = ll_type($$->type);
-                        add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
-                        free(var_type); free($1);}
-| CONSTANTI { $$ = new_empty_expr_s(); $$->reg = new_reg(); $$->type->prim = ($1 >= -128 && $1 <= 127)? CHAR_T : INT_T; 
-                        char* e_type = ll_type($$->type);
-                        add_line(&($$->ll_c), "%%%d = add %s 0, %d", $$->reg, e_type, $1);
-                        free(e_type);}
-| CONSTANTF { $$ = new_empty_expr_s(); $$->type->prim = FLOAT_T; 
-                        char* e_type = ll_type($$->type);
-                        add_line(&($$->ll_c), "%%%d = fadd %s 0, %016lx", $$->reg, e_type, *((long int *)&$1)); 
-                        free(e_type);}
+: IDENTIFIER { identifier_semantics(&$$, $1); }
+| CONSTANTI {constant_semantics(&$$, $1, 0, INT_T);  }
+| CONSTANTF { constant_semantics(&$$, 0, $1, FLOAT_T); }
+| CONSTANTC { constant_semantics(&$$, $1, 0, CHAR_T); }
 | '(' expression ')' { $$ = $2; }
 | MAP '(' postfix_expression ',' postfix_expression ')'  { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);} 
 | REDUCE '(' postfix_expression ',' postfix_expression ')'   { $$ = new_empty_expr_s(); free_expr_s($3); free_expr_s($5);}
@@ -104,20 +93,11 @@ primary_expression
                                                                     for(int i=0; $3[i] != NULL; i++)  free($3[i]);                                                                    
                                                                     free($3); free($1); free(e_type);}
                                                                     
-| IDENTIFIER INC_OP {$$ = new_empty_expr_s();
-                                    $$->reg = new_reg();
-                                    var_s* var;
-                                    for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
-                                    copy_type_s($$->type,  var->type); 
+| IDENTIFIER INC_OP {
+                                    identifier_semantics(&$$, $1);
                                     
-                                    char* var_type = ll_type($$->type);
-                                    add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
-                                    free(var_type); free($1);
-                                    
-                                    expr_s* e_1 = new_empty_expr_s(); e_1->reg = new_reg(); e_1->type->prim =  CHAR_T; 
-                                    char* e_type = ll_type(e_1->type);
-                                    add_line(&(e_1->ll_c), "%%%d = add %s 0, 1", e_1->reg, e_type);
-                                    free(e_type);
+                                    expr_s* e_1;
+                                    constant_semantics(&e_1, 1, 0, INT_T);
                                     
                                     expr_s* result_cp = new_empty_expr_s(); 
                                     result_cp->reg = $$->reg; 
@@ -132,20 +112,11 @@ primary_expression
                                     
                                     }
                                 
-| IDENTIFIER DEC_OP { $$ = new_empty_expr_s();
-                                    $$->reg = new_reg();
-                                    var_s* var;
-                                    for(var_lmap* cur = cur_vars; (var = hash_find(cur, $1))  == NULL; cur = cur->up);
-                                    copy_type_s($$->type,  var->type); 
+| IDENTIFIER DEC_OP {                                
+                                    identifier_semantics(&$$, $1);
                                     
-                                    char* var_type = ll_type($$->type);
-                                    add_line(&($$->ll_c), "%%%d = load %s, %s* %%%d", $$->reg, var_type, var_type, var->addr_reg);
-                                    free(var_type); free($1);
-                                    
-                                    expr_s* e_1 = new_empty_expr_s(); e_1->reg = new_reg(); e_1->type->prim =  CHAR_T; 
-                                    char* e_type = ll_type(e_1->type);
-                                    add_line(&(e_1->ll_c), "%%%d = add %s 0, 1", e_1->reg, e_type);
-                                    free(e_type);
+                                    expr_s* e_1;
+                                    constant_semantics(&e_1, 1, 0, INT_T);
                                     
                                     expr_s* result_cp = new_empty_expr_s(); 
                                     result_cp->reg = $$->reg; 

@@ -32,6 +32,7 @@ L[a-zA-Z_]
 [$]?{L}({L}|{D})*	{ count(); yylval.s_id=strdup(yytext); return(IDENTIFIER); }
 {D}+    	{ count(); yylval.n_val=atoi(yytext); return(CONSTANTI); }
 {D}+"."{D}*     { count(); yylval.f_val=atof(yytext); return(CONSTANTF); }
+"'"({L}|{D})"'" { count(); yylval.c_val=yytext[1]; return(CONSTANTC); }
 "+="		{ count(); return(ADD_ASSIGN); }
 "-="		{ count(); return(SUB_ASSIGN); }
 "*="		{ count(); return(MUL_ASSIGN); }
