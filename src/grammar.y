@@ -17,11 +17,11 @@
     //so during a function definition, the paraeters are not within the right hashmap
     //to prevent this, there is a global hashmap, in which we add functions parameters
     // when a function is defined, the content of this map is added to the current map
-	var_s* pending_vars = EMPTY_MAP;
+	var_s** pending_vars = EMPTY_MAP;
     //the only issue  is that it does not currently allow functions as parameters 
     //this could be solved by changing the grammar, with adding a second parameter_list token, with unnamed parameters only
 
-    var_s* cur_func_params = EMPTY_MAP;
+    var_s** cur_func_params = EMPTY_MAP;
 
 %}
 
@@ -240,8 +240,8 @@ parameter_list  //type_f*
 
 parameter_declaration //type_s*
 : type_name declarator {assign_deepest($2->type, $1);                                             
-                                    hash_add_param(&cur_func_params, $2);
-                                    hash_add(&pending_vars, $2);
+                                    hash_add_param(cur_func_params, $2);
+                                    hash_add(pending_vars, $2);
                                     $$ = new_empty_type_s(); 
                                     copy_type_s($$, $2->type);
                                     }

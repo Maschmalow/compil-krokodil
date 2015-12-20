@@ -44,7 +44,7 @@ L[a-zA-Z_]
 "=="		{ count(); return(EQ_OP); }
 "!="		{ count(); return(NE_OP); }
 ";"		{ count(); return(';'); }
-"{"      	{ count(); cur_depth++;  var_lmap* down_map = new_var_lmap(EMPTY_MAP, cur_depth, cur_vars); cur_vars = down_map; hash_transfer_all(cur_vars, &pending_vars);  return('{'); }
+"{"      	{ count(); cur_depth++;  var_lmap* down_map = new_var_lmap(EMPTY_MAP, cur_depth, cur_vars); cur_vars = down_map; hash_transfer_all(cur_vars, pending_vars);  return('{'); }
 "}"      	{ count(); cur_depth--; var_lmap* up_map = cur_vars->up; free_var_lmap(cur_vars); cur_vars = up_map; return('}'); }
 ","		{ count(); return(','); }
 "/"		{ count(); return('/'); }
