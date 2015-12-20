@@ -72,6 +72,7 @@ void hash_transfer_all(var_lmap* dst, var_s** src) ; //second arg is var_s** bec
 void hash_add_all_param(var_lmap* head, var_s* map);
 
 void hash_add(var_s** head, var_s* item);
+void hash_add_param(var_s** head,  var_s* item);
 void  clear_var_map_param(var_s** map);
 void  free_var_map(var_s** map);
 
