@@ -119,10 +119,13 @@ primary_expression
                                     add_line(&(e_1->ll_c), "%%%d = add %s 0, 1", e_1->reg, e_type);
                                     free(e_type);
                                     
-                                    expr_s* $$_cp = new_empty_expr_s(); $$_cp->reg = $$->reg; copy_type_s($$_cp->type, $$->type); strdup($$_cp->ll_c, $$->ll_c); 
+                                    expr_s* result_cp = new_empty_expr_s(); 
+                                    result_cp->reg = $$->reg; 
+                                    copy_type_s(result_cp->type, $$->type); 
+                                    strdup(result_cp->ll_c, $$->ll_c); 
                                     
                                     expr_s* incr;
-                                    assignement_op_semantics(&incr, $$_cp,"add", e_1);
+                                    assignement_op_semantics(&incr, result_cp,"add", e_1);
                                     free($$->ll_c);
                                     $$->ll_c = strdup(incr->ll_c);
                                     free_expr_s(incr);
@@ -144,10 +147,13 @@ primary_expression
                                     add_line(&(e_1->ll_c), "%%%d = add %s 0, 1", e_1->reg, e_type);
                                     free(e_type);
                                     
-                                    expr_s* $$_cp = new_empty_expr_s(); $$_cp->reg = $$->reg; copy_type_s($$_cp->type, $$->type); strdup($$_cp->ll_c, $$->ll_c); 
+                                    expr_s* result_cp = new_empty_expr_s(); 
+                                    result_cp->reg = $$->reg; 
+                                    copy_type_s(result_cp->type, $$->type); 
+                                    strdup(result_cp->ll_c, $$->ll_c); 
                                     
                                     expr_s* incr;
-                                    assignement_op_semantics(&incr, $$_cp,"sub", e_1);
+                                    assignement_op_semantics(&incr, result_cp,"sub", e_1);
                                     free($$->ll_c);
                                     $$->ll_c = strdup(incr->ll_c);
                                     free_expr_s(incr);
