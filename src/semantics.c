@@ -372,14 +372,15 @@ void incr_decr_semantics(expr_s** resultp, char* arg1, char* arg2)
 {
 
     identifier_semantics(resultp, strdup(arg1));
+    expr_s* result = *resultp;
 
     expr_s* e_1;
     constant_semantics(&e_1, 1, 0, INT_T);
 
     expr_s* incr;
     assignement_op_semantics(&incr, arg1, arg2, e_1);
-    free($$->ll_c);
-    $$->ll_c = strdup(incr->ll_c);
+    free(result->ll_c);
+    result->ll_c = strdup(incr->ll_c);
     free_expr_s(incr);
     
 }
