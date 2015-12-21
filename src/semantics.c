@@ -64,14 +64,14 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
     if(arg1->type->prim == FLOAT_T || arg3->type->prim == FLOAT_T ) 
     {
         result->type->prim = FLOAT_T;
-        conversion_semantics(&arg1, arg1, INT_T);
-        conversion_semantics(&arg3, arg3, INT_T);
+        conversion_semantics(&arg1, arg1, result->type);
+        conversion_semantics(&arg3, arg3, result->type);
     }
     else if(arg1->type->prim == INT_T || arg3->type->prim == INT_T ) 
     {
         result->type->prim = INT_T;
-        conversion_semantics(&arg1, arg1, INT_T);
-        conversion_semantics(&arg3, arg3, INT_T);
+        conversion_semantics(&arg1, arg1, result->type);
+        conversion_semantics(&arg3, arg3, result->type);
     }
     else{
         result->type->prim = CHAR_T;
@@ -149,8 +149,8 @@ void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
     copy_type_s(result->type, arg3);
 
     char* op = NULL;
-    if( arg1->type->prim == CHAR_T || arg1->type->prim = INT_T) op = "sitofp";
-    if( arg1->type->prim == FLOAT_T ) op = "fptosi";
+    if( arg1->type->prim == CHAR_T || arg1->type->prim = INT_T) op = strdup("sitofp");
+    if( arg1->type->prim == FLOAT_T ) op = strdup("fptosi");
 
 
 	char* out_type = ll_type(result->type);
@@ -159,7 +159,7 @@ void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
 	add_line(&(result->ll_c),"%%%d = %s %s %%%d to %s", result->reg, op, in_type, arg1->reg, out_type);
 
 	free(out_type); free(in_type);
-	free_expr_s(arg1);
+	free_expr_s(arg1); free(op);
 }
 
 void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, char* arg3)
@@ -250,7 +250,7 @@ void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
     for(int i=0; arg2[i] != NULL; i++) {
         char* param_type = ll_type(arg2[i]->type);
         add_ll_c(&(result->ll_c), "%s", arg2[i]->ll_c);
-        conversion_semantics(arg2 + i, arg2[i], var->func->params[i]);
+        conversion_semantics(arg2 + i, arg2[i], var->type->func->params[i]);
         add_ll_c(&params, "%s %%%d", param_type, arg2[i]->reg);
         if(arg2[i+1] != NULL)
             add_ll_c(&params, ", ");
@@ -382,7 +382,7 @@ void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
     char* var_type = ll_type(result->type);
     //add_line(&(result->ll_c), "%%%d = load %s** %%1, align 8", result->reg, var_type, var_type, var->addr_reg, arg1);
     add_ll_c(&(result->ll_c), "%s", arg2->ll_c);
-    add_line(&(result->ll_c), "%%%d = getelementptr inbounds %s %%%d, i64 %%%d",result->reg, var_type, var->addr_reg, arg2->reg);
+    add_line(&(result->ll_c), "%%%d = getelementptr %s %%%d, i64 %%%d",result->reg, var_type, var->addr_reg, arg2->reg);
 
 
     free(var_type); free(arg1); free_expr_s(arg2);

@@ -379,7 +379,7 @@ char* new_label(const char* prefix)
 {
     static int cur_count = 0;
     char* ret = NULL;
-    asprintf(&ret, "%s%d", prefix, cur_count);
+    asprintf(&ret, "%s.%d", prefix, cur_count);
     cur_count++;
     
     return ret;
