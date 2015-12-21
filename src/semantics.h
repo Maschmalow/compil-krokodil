@@ -16,7 +16,7 @@ void constant_semantics(expr_s** resultp, int n_val, double f_val, type_p t);
 void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2);
 void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3);
 void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2);
-
+void incr_decr_semantics(expr_s** resultp, char* arg1, char* arg2);
 
 
 
