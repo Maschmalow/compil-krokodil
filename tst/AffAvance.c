@@ -7,7 +7,7 @@ int main()
 
     float ce()[];
 
-    char projet(int ooo[10]); //un tableau de 4 fonctions qui prennent un tableau de 10 int et qui renvoient un tableau de 50 char.
+    char projet(int ooo[10]); 
 
     float tabf[];
 

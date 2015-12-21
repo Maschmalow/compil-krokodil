@@ -353,7 +353,7 @@ void assignement_semantics(expr_s** resultp, char* arg1, expr_s* arg3)
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s", arg3->ll_c);
 	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d", tmp, arg3->reg, tmp, var->addr_reg);
-	free(tmp);
+	free(tmp); free(arg1);
 	free_expr_s(arg3);
 }
 
