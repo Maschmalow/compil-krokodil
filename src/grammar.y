@@ -132,6 +132,8 @@ expression
 | IDENTIFIER MUL_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "mul", $3); }
 | IDENTIFIER DIV_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "div", $3); }
 | comparison_expression { $$ = $1; }
+| '(' type_name ')' expression { type_s* t_p = new_empty_type_s(); t_p->prim = $2;
+                                                conversion_semantics(&$$, $4, t_p);  free_type_s(t_p);} 
 ;
 
 
