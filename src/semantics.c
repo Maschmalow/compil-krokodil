@@ -363,11 +363,9 @@ void assignement_op_semantics(expr_s** resultp, char* arg1, const char* arg2, ex
         
     expr_s* op_result;
     expr_s* var;
-    expr_s* var_cp;
     identifier_semantics(&var, strdup(arg1));
-    binary_op_semantics(&op_result,  var, arg2,  arg3);
-    identifier_semantics(&var_cp, arg1);
-    assignement_semantics(resultp, var_cp, op_result);
+    binary_op_semantics(&op_result,  var, arg2, arg3);
+    assignement_semantics(resultp, arg1, op_result);
 }
 
 void incr_decr_semantics(expr_s** resultp, char* arg1, char* arg2)
