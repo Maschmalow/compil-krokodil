@@ -396,7 +396,9 @@ void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
     char* var_type = ll_type(result->type);
     //add_line(&(result->ll_c), "%%%d = load %s** %%1, align 8", result->reg, var_type, var_type, var->addr_reg, arg1);
     add_ll_c(&(result->ll_c), "%s", arg2->ll_c);
-    add_line(&(result->ll_c), "%%%d = getelementptr %s* %%%d, i64 %%%d",result->reg, var_type, var->addr_reg, arg2->reg);
+    int tmp_reg = new_reg();
+    add_line(&(result->ll_c), "%%%d = getelementptr %s* %%%d, i64 %%%d", tmp_reg, var_type, var->addr_reg, arg2->reg);
+    add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d", result->reg, var_type, var_type, tm_reg);
 
 
     free(var_type); free(arg1); free_expr_s(arg2);
