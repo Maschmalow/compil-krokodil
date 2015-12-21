@@ -85,7 +85,7 @@ void binary_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_
 
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
-	add_line(&(result->ll_c),"%%%d = %s%s %s %%%d, %%%d", result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
+	add_line(&(result->ll_c),"%%r%d = %s%s %s %%r%d, %%r%d", result->reg, op_type, arg2, tmp, arg1->reg, arg3->reg);
     //puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
@@ -126,7 +126,7 @@ void comparaison_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, exp
 
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
-	add_line(&(result->ll_c),"%%%d = %ccmp %s%s %s %%%d, %%%d", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
+	add_line(&(result->ll_c),"%%r%d = %ccmp %s%s %s %%r%d, %%r%d", result->reg, op_type, cond_type, arg2, tmp, arg1->reg, arg3->reg);
     //puts(result->ll_c);
 	free(tmp);
 	free_expr_s(arg1);
@@ -156,7 +156,7 @@ void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
 	char* out_type = ll_type(result->type);
     char* in_type = ll_type(arg1->type);
     add_ll_c(&(result->ll_c), "%s", arg1->ll_c);
-	add_line(&(result->ll_c),"%%%d = %s %s %%%d to %s", result->reg, op, in_type, arg1->reg, out_type);
+	add_line(&(result->ll_c),"%%r%d = %s %s %%r%d to %s", result->reg, op, in_type, arg1->reg, out_type);
 
 	free(out_type); free(in_type);
 	free_expr_s(arg1); 
@@ -180,7 +180,7 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     for(int i=0; i< f->nb_param; i++) {
         char* param_type = ll_type(f->params[i]);
         param_regs[i] = new_reg();
-        add_ll_c(&def, "%s %%%d", param_type, param_regs[i]);
+        add_ll_c(&def, "%s %%r%d", param_type, param_regs[i]);
         if(i != f->nb_param-1)
             add_ll_c(&def, ", ");
 
@@ -193,8 +193,8 @@ void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, cha
     for(int i=0; i< f->nb_param; i++) {
 
         char* param_type = ll_type(f->params[i]);
-        add_line(resultp, "  %%%d = alloca %s  ;%s", cur_param->addr_reg, param_type, cur_param->s_id);
-        add_line(resultp, "  store %s %%%d, %s* %%%d", param_type, param_regs[i], param_type, cur_param->addr_reg);
+        add_line(resultp, "  %%r%d = alloca %s  ;%s", cur_param->addr_reg, param_type, cur_param->s_id);
+        add_line(resultp, "  store %s %%r%d, %s* %%r%d", param_type, param_regs[i], param_type, cur_param->addr_reg);
 
         cur_param = cur_param->hh_param.next;
         free(param_type);
@@ -215,7 +215,7 @@ void identifier_semantics(expr_s** resultp, char* arg1)
     copy_type_s(result->type,  var->type);
 
     char* var_type = ll_type(result->type);
-    add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d  ;%s", result->reg, var_type, var_type, var->addr_reg, arg1);
+    add_line(&(result->ll_c), "%%r%d = load %s, %s* %%r%d  ;%s", result->reg, var_type, var_type, var->addr_reg, arg1);
     free(var_type); free(arg1);
 }
 
@@ -228,10 +228,10 @@ void constant_semantics(expr_s** resultp, int n_val, double f_val, type_p t)
     char* e_type = ll_type(result->type);
 
     if(t == FLOAT_T) {
-        add_line(&(result->ll_c), "%%%d = fadd %s 0, %016lx", result->reg, e_type, *((long int *)&f_val));
+        add_line(&(result->ll_c), "%%r%d = fadd %s 0, %016lx", result->reg, e_type, *((long int *)&f_val));
 	}
     if(t == INT_T || t == CHAR_T)
-        add_line(&(result->ll_c), "%%%d = add %s 0, %d", result->reg, e_type, n_val);
+        add_line(&(result->ll_c), "%%r%d = add %s 0, %d", result->reg, e_type, n_val);
 
     free(e_type);
 }
@@ -251,7 +251,7 @@ void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
         char* param_type = ll_type(arg2[i]->type);
         add_ll_c(&(result->ll_c), "%s", arg2[i]->ll_c);
         conversion_semantics(arg2 + i, arg2[i], var->type->func->params[i]);
-        add_ll_c(&params, "%s %%%d", param_type, arg2[i]->reg);
+        add_ll_c(&params, "%s %%r%d", param_type, arg2[i]->reg);
         if(arg2[i+1] != NULL)
             add_ll_c(&params, ", ");
         free(param_type);
@@ -261,7 +261,7 @@ void call_semantics(expr_s** resultp, char* arg1, expr_s** arg2)
 
     char* e_type = ll_type(result->type);
     if(result->type->prim != VOID_T) {
-        add_line(&(result->ll_c), "%%%d = call %s @%s(%s)", result->reg, e_type, var->s_id, params);
+        add_line(&(result->ll_c), "%%r%d = call %s @%s(%s)", result->reg, e_type, var->s_id, params);
     } else {
         add_line(&(result->ll_c), "call %s @%s(%s)", e_type, var->s_id, params);
     }
@@ -282,7 +282,7 @@ void iteration_semantics(char** resultp, expr_s* arg1, expr_s* arg2, expr_s* arg
 
     add_line(resultp, "%s:", cond);
     add_ll_c(resultp, "%s", arg2->ll_c);
-    add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n", arg2->reg, body, end); // ! convert to i1
+    add_line(resultp, "br i1 %%r%d, label %%%s, label %%%s\n", arg2->reg, body, end); // ! convert to i1
 
     add_line(resultp, "%s:", body);
     add_ll_c(resultp, "%s", arg4);
@@ -310,7 +310,7 @@ void iteration_do_while_semantics(char** resultp, char* arg1, expr_s* arg2)
 
     add_line(resultp, "%s:", cond);
     add_ll_c(resultp, "%s", arg2->ll_c);
-    add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n", arg2->reg, body, end); // ! convert to i1
+    add_line(resultp, "br i1 %%r%d, label %%%s, label %%%s\n", arg2->reg, body, end); // ! convert to i1
 
     add_line(resultp, "%s:", end);
     free(cond); free(body);  free(end);
@@ -324,7 +324,7 @@ void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
     char* then = new_label("if.then"); char* _else = new_label("if.else"); char* end = new_label("if.end");
 
     add_ll_c(resultp, "%s", cond->ll_c);
-    add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n", cond->reg, then, _else); // ! convert to i1
+    add_line(resultp, "br i1 %%r%d, label %%%s, label %%%s\n", cond->reg, then, _else); // ! convert to i1
 
     add_line(resultp, "%s:", then);
     add_ll_c(resultp, "%s", arg1);
@@ -352,7 +352,7 @@ void assignement_semantics(expr_s** resultp, char* arg1, expr_s* arg3)
     conversion_semantics(&arg3, arg3, var->type);
 	char* tmp = ll_type(result->type);
     add_ll_c(&(result->ll_c), "%s", arg3->ll_c);
-	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d", tmp, arg3->reg, tmp, var->addr_reg);
+	add_line(&(result->ll_c),"store %s %%r%d, %s* %%r%d", tmp, arg3->reg, tmp, var->addr_reg);
 	free(tmp); free(arg1);
 	free_expr_s(arg3);
 }
@@ -394,11 +394,11 @@ void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
     copy_type_s(result->type,  var->type);
 
     char* var_type = ll_type(result->type);
-    //add_line(&(result->ll_c), "%%%d = load %s** %%1, align 8", result->reg, var_type, var_type, var->addr_reg, arg1);
+    //add_line(&(result->ll_c), "%%r%d = load %s** %%1, align 8", result->reg, var_type, var_type, var->addr_reg, arg1);
     add_ll_c(&(result->ll_c), "%s", arg2->ll_c);
     int tmp_reg = new_reg();
-    add_line(&(result->ll_c), "%%%d = getelementptr %s* %%%d, i64 %%%d", tmp_reg, var_type, var->addr_reg, arg2->reg);
-    add_line(&(result->ll_c), "%%%d = load %s, %s* %%%d", result->reg, var_type, var_type, tmp_reg);
+    add_line(&(result->ll_c), "%%r%d = getelementptr %s* %%r%d, i64 %%r%d", tmp_reg, var_type, var->addr_reg, arg2->reg);
+    add_line(&(result->ll_c), "%%r%d = load %s, %s* %%r%d", result->reg, var_type, var_type, tmp_reg);
 
 
     free(var_type); free(arg1); free_expr_s(arg2);
