@@ -375,7 +375,7 @@ void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
     expr_s* result = *resultp;
     var_s* var;
     for(var_lmap* cur = cur_vars; (var = hash_find(cur, arg1))  == NULL; cur = cur->up);
-    copy_type_s(result->type,  var->type->func->ret);
+    copy_type_s(result->type,  var->type);
 
     char* var_type = ll_type(result->type);
     //add_line(&(result->ll_c), "%%%d = load %s** %%1, align 8", result->reg, var_type, var_type, var->addr_reg, arg1);
