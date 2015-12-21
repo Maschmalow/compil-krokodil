@@ -149,8 +149,8 @@ void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
     copy_type_s(result->type, arg3);
 
     char* op = NULL;
-    if( arg1->type->prim == CHAR_T || arg1->type->prim = INT_T) op = strdup("sitofp");
-    if( arg1->type->prim == FLOAT_T ) op = strdup("fptosi");
+    if( arg1->type->prim == CHAR_T || arg1->type->prim == INT_T) op = "sitofp";
+    if( arg1->type->prim == FLOAT_T ) op = "fptosi";
 
 
 	char* out_type = ll_type(result->type);
@@ -159,7 +159,7 @@ void conversion_semantics(expr_s** resultp, expr_s* arg1, type_s* arg3)
 	add_line(&(result->ll_c),"%%%d = %s %s %%%d to %s", result->reg, op, in_type, arg1->reg, out_type);
 
 	free(out_type); free(in_type);
-	free_expr_s(arg1); free(op);
+	free_expr_s(arg1); 
 }
 
 void function_definition_semantics(char** resultp, type_p arg1, var_s* arg2, char* arg3)
@@ -324,8 +324,6 @@ void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
     char* then = new_label("if.then"); char* _else = new_label("if.else"); char* end = new_label("if.end");
 
     add_ll_c(resultp, "%s", cond->ll_c);
-
-    conversion_semantics(&cond, cond, )
     add_line(resultp, "br i1 %%%d, label %%%s, label %%%s\n", cond->reg, then, _else); // ! convert to i1
 
     add_line(resultp, "%s:", then);
