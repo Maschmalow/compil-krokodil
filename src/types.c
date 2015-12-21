@@ -10,8 +10,8 @@ char* ll_type(type_s* t) {
 	if(IS_PRIMARY(t))
 	{
 		if(t->prim == VOID_T)  return strdup("void");
-		if(t->prim == CHAR_T)  return strdup("int8");
-		if(t->prim == INT_T)   return strdup("int32");
+		if(t->prim == CHAR_T)  return strdup("i8");
+		if(t->prim == INT_T)   return strdup("i32");
 		if(t->prim == FLOAT_T) return strdup("float");
 	}
 
