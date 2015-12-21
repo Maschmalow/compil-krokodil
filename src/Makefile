@@ -16,4 +16,4 @@ grammar.c:grammar.y
 
 
 clean:
-	rm -f grammar.c scanner.c parse
+	rm -f grammar.c scanner.c krokodil
