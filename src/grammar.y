@@ -123,6 +123,8 @@ comparison_expression
 | additive_expression GE_OP additive_expression { comparaison_semantics(&$$, $1, "ge", $3); }
 | additive_expression EQ_OP additive_expression { comparaison_semantics(&$$, $1, "eq", $3); }
 | additive_expression NE_OP additive_expression { comparaison_semantics(&$$, $1, "ne", $3); }
+| '(' type_name ')' expression { type_s* t_p = new_empty_type_s(); t_p->prim = $2;
+                                                conversion_semantics(&$$, $4, t_p);  free_type_s(t_p);} 
 ;
 
 expression
@@ -132,8 +134,6 @@ expression
 | IDENTIFIER MUL_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "mul", $3); }
 | IDENTIFIER DIV_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "div", $3); }
 | comparison_expression { $$ = $1; }
-| '(' type_name ')' expression { type_s* t_p = new_empty_type_s(); t_p->prim = $2;
-                                                conversion_semantics(&$$, $4, t_p);  free_type_s(t_p);} 
 ;
 
 
