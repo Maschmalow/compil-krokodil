@@ -123,8 +123,8 @@ comparison_expression
 | additive_expression GE_OP additive_expression { comparaison_semantics(&$$, $1, "ge", $3); }
 | additive_expression EQ_OP additive_expression { comparaison_semantics(&$$, $1, "eq", $3); }
 | additive_expression NE_OP additive_expression { comparaison_semantics(&$$, $1, "ne", $3); }
-| '(' type_name ')' expression { type_s* t_p = new_empty_type_s(); t_p->prim = $2;
-                                                conversion_semantics(&$$, $4, t_p);  free_type_s(t_p);} 
+| '(' type_name ')' additive_expression { type_s* t_p = new_empty_type_s(); t_p->prim = $2;
+                                                            conversion_semantics(&$$, $4, t_p);  free_type_s(t_p);} 
 ;
 
 expression
