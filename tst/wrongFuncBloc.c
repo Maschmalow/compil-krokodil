@@ -7,4 +7,4 @@ int main()
 }
 
 
-void frite()
+void frite();

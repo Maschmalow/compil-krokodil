@@ -3,7 +3,7 @@
 int main()
 {
 
-  int (*f)(void);
+  int f(void a);
 
   void tab[50];
 
