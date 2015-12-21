@@ -75,43 +75,9 @@ primary_expression
 | IDENTIFIER '(' ')'  { expr_s** ALLOC(empty_list); *empty_list = NULL; call_semantics(&$$, $1, empty_list); }
 | IDENTIFIER '(' argument_expression_list ')' {  call_semantics(&$$, $1, $3); }
                                                                     
-| IDENTIFIER INC_OP {
-                                    identifier_semantics(&$$, $1);
-                                    
-                                    expr_s* e_1;
-                                    constant_semantics(&e_1, 1, 0, INT_T);
-                                    
-                                    expr_s* result_cp = new_empty_expr_s(); 
-                                    result_cp->reg = $$->reg; 
-                                    copy_type_s(result_cp->type, $$->type); 
-                                    result_cp->ll_c = strdup($$->ll_c); 
-                                    
-                                    expr_s* incr;
-                                    assignement_op_semantics(&incr, result_cp,"add", e_1);
-                                    free($$->ll_c);
-                                    $$->ll_c = strdup(incr->ll_c);
-                                    free_expr_s(incr);
-                                    
-                                    }
+| IDENTIFIER INC_OP { incr_decr_semantics(&$$, $1, "add"); }
                                 
-| IDENTIFIER DEC_OP {                                
-                                    identifier_semantics(&$$, $1);
-                                    
-                                    expr_s* e_1;
-                                    constant_semantics(&e_1, 1, 0, INT_T);
-                                    
-                                    expr_s* result_cp = new_empty_expr_s(); 
-                                    result_cp->reg = $$->reg; 
-                                    copy_type_s(result_cp->type, $$->type); 
-                                    result_cp->ll_c = strdup($$->ll_c); 
-                                    
-                                    expr_s* incr;
-                                    assignement_op_semantics(&incr, result_cp,"sub", e_1);
-                                    free($$->ll_c);
-                                    $$->ll_c = strdup(incr->ll_c);
-                                    free_expr_s(incr);
-                                    
-                                    }
+| IDENTIFIER DEC_OP { incr_decr_semantics(&$$, $1, "sub"); }
 ;
 
 postfix_expression
