@@ -358,15 +358,16 @@ void assignement_semantics(expr_s** resultp, char* arg1, expr_s* arg3)
 }
 
 //
-void assignement_op_semantics(expr_s** resultp, expr_s* arg1, const char* arg2, expr_s* arg3)
+void assignement_op_semantics(expr_s** resultp, char* arg1, const char* arg2, expr_s* arg3)
 {
-    expr_s* inter;
-    expr_s* arg1_cp = new_empty_expr_s();
-    arg1_cp->reg = arg1->reg;
-    copy_type_s(arg1_cp->type, arg1->type);
-
-    binary_op_semantics(&inter,  arg1, arg2,  arg3);
-    assignement_semantics(resultp, arg1_cp, inter);
+        
+    expr_s* op_result;
+    expr_s* var;
+    expr_s* var_cp;
+    identifier_semantics(&var, strdup(arg1));
+    binary_op_semantics(&op_result,  var, arg2,  arg3);
+    identifier_semantics(&var_cp, arg1);
+    assignement_semantics(resultp, var_cp, op_result);
 }
 
 void access_tab_semantics(expr_s** resultp, char* arg1, expr_s* arg2)
