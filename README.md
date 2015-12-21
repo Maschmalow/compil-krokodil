@@ -1,29 +1,9 @@
 # README #
 
-Repository git pour le projet S7 compilation : compil-krokodil. 
+Repository pour le projet S7 compilation : compil-krokodil.
 
-### What is this repository for? ###
+Pour lancer le projet : executer le script runTests.sh, il compile via bison et flex notre grammaire contenue dans grammar.y.
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+On obtient en sortie le parseur nommé "krokodil", il est utilisé dans les tests pour vérifier et générer le code LLVM de chaque fichier de test contenu dans le dossier tst/.
 
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+On peut voir ce code LLVM généré dans le fichier analysis.out. 

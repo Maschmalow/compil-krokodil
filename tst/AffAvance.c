@@ -11,7 +11,7 @@ int main()
 
     float tabf[];
 
-    char est_nul(int affu[10]);
+    char est(int affu[10]);
 
     int x[20];
 
