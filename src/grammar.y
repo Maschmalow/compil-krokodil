@@ -160,11 +160,11 @@ comparison_expression
 ;
 
 expression
-: unary_expression '='                 comparison_expression { assignement_semantics(&$$, $1, $3); }
-| unary_expression SUB_ASSIGN comparison_expression { assignement_op_semantics(&$$, $1, "sub", $3); }
-| unary_expression ADD_ASSIGN comparison_expression { assignement_op_semantics(&$$, $1, "add", $3); }
-| unary_expression MUL_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "mul", $3); }
-| unary_expression DIV_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "div", $3); }
+: IDENTIFIER '='                 comparison_expression { assignement_semantics(&$$, $1, $3); }
+| IDENTIFIER SUB_ASSIGN comparison_expression { assignement_op_semantics(&$$, $1, "sub", $3); }
+| IDENTIFIER ADD_ASSIGN comparison_expression { assignement_op_semantics(&$$, $1, "add", $3); }
+| IDENTIFIER MUL_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "mul", $3); }
+| IDENTIFIER DIV_ASSIGN  comparison_expression { assignement_op_semantics(&$$, $1, "div", $3); }
 | comparison_expression { $$ = $1; }
 ;
 

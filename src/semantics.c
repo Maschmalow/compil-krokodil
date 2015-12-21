@@ -340,20 +340,20 @@ void selection_semantics(char** resultp,  expr_s* cond, char* arg1, char* arg2)
 }
 
  //
-void assignement_semantics(expr_s** resultp, expr_s* arg1, expr_s* arg3)
+void assignement_semantics(expr_s** resultp, char* arg1, expr_s* arg3)
 {
 	*resultp = new_empty_expr_s();
     expr_s* result = *resultp;
 	result->reg = arg3->reg;
+    var_s* var;
+    for(var_lmap* cur = cur_vars; (var = hash_find(cur, arg1))  == NULL; cur = cur->up);
+	copy_type_s(result->type, var->type);
 
-	copy_type_s(result->type, arg1->type);
-
-
+    conversion_semantics(&arg3, arg3, var->type);
 	char* tmp = ll_type(result->type);
-    add_ll_c(&(result->ll_c), "%s%s", arg1->ll_c, arg3->ll_c);
-	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d", tmp, arg3->reg, tmp, arg1->reg/*addr*/);
+    add_ll_c(&(result->ll_c), "%s", arg3->ll_c);
+	add_line(&(result->ll_c),"store %s %%%d, %s* %%%d", tmp, arg3->reg, tmp, var->addr_reg);
 	free(tmp);
-	free_expr_s(arg1);
 	free_expr_s(arg3);
 }
 
