@@ -1,7 +1,2 @@
-<<<<<<< HEAD
-elraine
-maschmalow
-=======
 Alexis Chan achan@ipb.fr
 Antoine Durand adurand00005@ipb.fr
->>>>>>> 4a3aabdd6207e20c1395a999ed59eb13bf6f5eaf
