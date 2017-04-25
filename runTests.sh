@@ -13,3 +13,4 @@ do
   echo "$file" >>analysis.out
   ./src/krokodil "$file" >> analysis.out
 done
+
